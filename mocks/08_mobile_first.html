@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — Mobile Reviewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f1f5f9;--white:#fff;--border:#e2e8f0;--text:#0f172a;--text2:#334155;--text3:#64748b;--text4:#94a3b8;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#86efac;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fcd34d;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --shadow:0 1px 4px rgba(0,0,0,.1);--shadow-md:0 4px 16px rgba(0,0,0,.12);
+}
+body{background:#e5e7eb;font-family:'Inter',sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:30px 20px}
+
+/* Page Label */
+.page-label{font-size:14px;font-weight:700;color:#374151;margin-bottom:20px;text-align:center}
+.page-label span{color:var(--text4);font-weight:400;font-size:12px;display:block;margin-top:2px}
+
+/* Phone Frame */
+.phone-frame{width:390px;background:#111827;border-radius:50px;padding:12px;box-shadow:0 25px 50px rgba(0,0,0,0.5),inset 0 0 0 2px #374151;position:relative}
+.phone-notch{width:120px;height:30px;background:#111827;border-radius:0 0 20px 20px;margin:0 auto 4px;position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:8px}
+.notch-cam{width:10px;height:10px;border-radius:50%;background:#1f2937}
+.notch-sensor{width:40px;height:5px;border-radius:3px;background:#1f2937}
+.phone-screen{background:var(--bg);border-radius:38px;overflow:hidden;height:780px;display:flex;flex-direction:column}
+
+/* Status bar */
+.status-bar{background:var(--white);padding:6px 20px 4px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-time{font-size:13px;font-weight:700;color:var(--text)}
+.sb-icons{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text)}
+
+/* App Bar */
+.app-bar{background:var(--white);padding:8px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;box-shadow:var(--shadow)}
+.app-bar-logo{font-weight:800;font-size:16px;color:var(--blue)}
+.app-bar-spacer{flex:1}
+.app-bar-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg);border:1px solid var(--border)}
+.app-bar-avatar{width:34px;height:34px;border-radius:50%;background:var(--blue);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* Scroll area */
+.scroll-area{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+
+/* Section label */
+.section-label{font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:0.5px;padding:0 4px;margin-top:4px}
+
+/* Active Candidate Card */
+.active-card{background:var(--white);border-radius:20px;padding:16px;box-shadow:var(--shadow-md);border:2px solid var(--blue)}
+.card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.cand-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#7c3aed);color:white;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cand-meta{flex:1}
+.cand-name{font-size:16px;font-weight:700;color:var(--text)}
+.cand-role{font-size:12px;color:var(--text3);margin-top:2px}
+.cand-app-date{font-size:10px;color:var(--text4);margin-top:3px}
+
+/* Decision badge + ring */
+.decision-section{display:flex;align-items:center;gap:12px;margin-bottom:12px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:14px;padding:12px}
+.conf-ring-sm{position:relative;width:56px;height:56px;flex-shrink:0}
+.conf-ring-sm svg{transform:rotate(-90deg)}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-num{font-size:12px;font-weight:800;color:var(--green);line-height:1}
+.ring-label{font-size:8px;color:var(--text4)}
+.decision-info .decision-badge-text{font-size:17px;font-weight:800;color:var(--green);letter-spacing:0.5px}
+.decision-info .decision-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.decision-info .decision-flags{font-size:10px;color:var(--green);margin-top:3px;font-weight:600}
+
+/* Evidence section */
+.evidence-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:10px;cursor:pointer;border:1px solid var(--border)}
+.evidence-toggle-text{font-size:12px;font-weight:600;color:var(--text2)}
+.evidence-toggle-count{background:var(--green-bg);color:var(--green);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;border:1px solid var(--green-border)}
+.evidence-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;display:none}
+.evidence-list.open{display:flex}
+.ev-chip{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:11px}
+.ev-chip .ev-chip-num{font-weight:700;color:var(--blue);margin-bottom:2px;font-size:10px}
+.ev-chip .ev-chip-quote{color:var(--text2);font-style:italic;line-height:1.4}
+.ev-chip .ev-chip-rel{color:var(--text4);font-size:10px;margin-top:2px}
+
+/* Action buttons */
+.action-row{display:flex;gap:8px;margin-top:12px}
+.action-btn-mobile{flex:1;padding:14px 8px;border-radius:16px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.15s}
+.action-btn-mobile:active{transform:scale(0.95)}
+.action-reject{background:var(--red-bg);color:var(--red);border:2px solid var(--red-border)}
+.action-hold{background:var(--amber-bg);color:var(--amber);border:2px solid var(--amber-border)}
+.action-accept{background:var(--green-bg);color:var(--green);border:2px solid var(--green-border)}
+.action-btn-mobile .btn-icon{font-size:22px}
+.action-btn-mobile .btn-text{font-size:11px;font-weight:600}
+.swipe-hint{font-size:10px;color:var(--text4);text-align:center;margin-top:6px}
+
+/* Queue cards */
+.queue-card{background:var(--white);border-radius:14px;padding:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
+.queue-avatar{width:38px;height:38px;border-radius:50%;color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.queue-info{flex:1}
+.queue-name{font-weight:600;font-size:13px}
+.queue-role{font-size:10px;color:var(--text4);margin-top:1px}
+.queue-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.q-accept{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.q-hold{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.q-reject{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+
+/* Bottom nav */
+.bottom-nav{background:var(--white);border-top:1px solid var(--border);padding:6px 0 10px;display:flex;flex-shrink:0}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 0}
+.nav-item .nav-icon{font-size:20px}
+.nav-item .nav-label{font-size:9px;font-weight:500;color:var(--text4)}
+.nav-item.active .nav-label{color:var(--blue)}
+.nav-item.active .nav-icon{filter:none}
+
+/* Confirmation overlay */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;z-index:50;border-radius:38px}
+.overlay.open{display:flex}
+.overlay-card{background:var(--white);border-radius:24px 24px 0 0;padding:24px;width:100%;text-align:center}
+.overlay-icon{font-size:48px;margin-bottom:8px}
+.overlay-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.overlay-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+.overlay-close{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 24px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;width:100%}
+</style>
+</head>
+<body>
+
+<div class="page-label">
+  Mobile-First Reviewer | Audience: On-the-Go Recruiters
+  <span>Optimized for recruiter review on iOS / Android · Thumb-friendly tap targets</span>
+</div>
+
+<div class="phone-frame">
+  <div class="phone-notch">
+    <div class="notch-sensor"></div>
+    <div class="notch-cam"></div>
+  </div>
+
+  <div class="phone-screen" style="position:relative">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="sb-time">9:14 AM</div>
+      <div class="sb-icons">
+        <span>●●●●</span>
+        <span>WiFi</span>
+        <span>🔋 87%</span>
+      </div>
+    </div>
+
+    <!-- App Bar -->
+    <div class="app-bar">
+      <div class="app-bar-logo">TXScreen</div>
+      <div class="app-bar-spacer"></div>
+      <div class="app-bar-icon">🔔</div>
+      <div class="app-bar-avatar">SK</div>
+    </div>
+
+    <!-- Scroll Area -->
+    <div class="scroll-area" id="scrollArea">
+
+      <div class="section-label">📋 Candidate Review — 1 of 47</div>
+
+      <!-- Active Card: Jane Martinez -->
+      <div class="active-card">
+        <!-- Top: Avatar + Info -->
+        <div class="card-top">
+          <div class="cand-avatar">JM</div>
+          <div class="cand-meta">
+            <div class="cand-name">Jane Martinez</div>
+            <div class="cand-role">Lead Python Dev → Sr. Python Developer</div>
+            <div class="cand-app-date">Applied Sep 2, 2026 · #APP-2026-04821</div>
+          </div>
+        </div>
+
+        <!-- Decision section -->
+        <div class="decision-section">
+          <div class="conf-ring-sm">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#e2e8f0" stroke-width="6"/>
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#16a34a" stroke-width="6" stroke-dasharray="138" stroke-dashoffset="11" stroke-linecap="round"/>
+            </svg>
+            <div class="ring-text"><div class="ring-num">92%</div><div class="ring-label">conf.</div></div>
+          </div>
+          <div class="decision-info">
+            <div class="decision-badge-text">✅ ACCEPT</div>
+            <div class="decision-sub">AI decision · 6/6 requirements met</div>
+            <div class="decision-flags">No flags detected</div>
+          </div>
+        </div>
+
+        <!-- Evidence toggle -->
+        <div class="evidence-toggle" onclick="toggleEvidence(this)">
+          <div class="evidence-toggle-text">📋 View Evidence Quotes</div>
+          <div class="evidence-toggle-count">6 / 6 ▾</div>
+        </div>
+        <div class="evidence-list" id="evidenceList">
+          <div class="ev-chip"><div class="ev-chip-num">01 · 5+ yrs Python ✓</div><div class="ev-chip-quote">"Lead Python Developer at CloudScale Inc. (2019–2024)"</div><div class="ev-chip-rel">→ 5 years direct Python leadership</div></div>
+          <div class="ev-chip"><div class="ev-chip-num">02 · Django/Flask ✓</div><div class="ev-chip-quote">"12 Django-based microservices handling 2M+ daily requests"</div><div class="ev-chip-rel">→ Production-scale Django</div></div>
+          <div class="ev-chip"><div class="ev-chip-num">03 · REST API ✓</div><div class="ev-chip-quote">"Designed RESTful APIs consumed by mobile and web clients"</div><div class="ev-chip-rel">→ Multi-platform API design</div></div>
+          <div class="ev-chip"><div class="ev-chip-num">04 · PostgreSQL ✓</div><div class="ev-chip-quote">"PostgreSQL databases with complex query optimization"</div><div class="ev-chip-rel">→ Advanced database proficiency</div></div>
+          <div class="ev-chip"><div class="ev-chip-num">05 · pytest ✓</div><div class="ev-chip-quote">"pytest achieving 94% code coverage"</div><div class="ev-chip-rel">→ Strong testing discipline</div></div>
+          <div class="ev-chip"><div class="ev-chip-num">06 · CI/CD ✓</div><div class="ev-chip-quote">"CI/CD pipelines with GitHub Actions and Jenkins"</div><div class="ev-chip-rel">→ Dual tool CI/CD experience</div></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-row">
+          <button class="action-btn-mobile action-reject" onclick="doAction('reject')">
+            <div class="btn-icon">✕</div>
+            <div class="btn-text">Reject</div>
+          </button>
+          <button class="action-btn-mobile action-hold" onclick="doAction('hold')">
+            <div class="btn-icon">⏸</div>
+            <div class="btn-text">Hold</div>
+          </button>
+          <button class="action-btn-mobile action-accept" onclick="doAction('accept')">
+            <div class="btn-icon">✓</div>
+            <div class="btn-text">Accept</div>
+          </button>
+        </div>
+        <div class="swipe-hint">← swipe left to reject · swipe right to accept →</div>
+      </div>
+
+      <div class="section-label" style="margin-top:4px">📬 Queue — Next Up</div>
+
+      <!-- Queue Card 1 -->
+      <div class="queue-card">
+        <div class="queue-avatar" style="background:linear-gradient(135deg,#059669,#0d9488)">DC</div>
+        <div class="queue-info">
+          <div class="queue-name">David Chen</div>
+          <div class="queue-role">Sr. Python Developer</div>
+        </div>
+        <span class="queue-badge q-accept">ACCEPT 88%</span>
+      </div>
+
+      <!-- Queue Card 2 -->
+      <div class="queue-card">
+        <div class="queue-avatar" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">AP</div>
+        <div class="queue-info">
+          <div class="queue-name">Alex Petrov</div>
+          <div class="queue-role">Sr. Python Developer</div>
+        </div>
+        <span class="queue-badge q-hold">REVIEW 55%</span>
+      </div>
+
+      <!-- Queue Card 3 -->
+      <div class="queue-card">
+        <div class="queue-avatar" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">MB</div>
+        <div class="queue-info">
+          <div class="queue-name">Michael Brooks</div>
+          <div class="queue-role">Sr. Python Developer</div>
+        </div>
+        <span class="queue-badge q-reject">REJECT 91%</span>
+      </div>
+
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-label">Home</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📋</div>
+        <div class="nav-label">Pipeline</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">💬</div>
+        <div class="nav-label">Messages</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">👤</div>
+        <div class="nav-label">Profile</div>
+      </div>
+    </div>
+
+    <!-- Confirmation Overlay -->
+    <div class="overlay" id="overlay">
+      <div class="overlay-card">
+        <div class="overlay-icon" id="overlayIcon">✅</div>
+        <div class="overlay-title" id="overlayTitle">Decision Recorded</div>
+        <div class="overlay-sub" id="overlaySub">Action confirmed and audit log updated.</div>
+        <button class="overlay-close" onclick="closeOverlay()">Done — Next Candidate →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleEvidence(btn){
+  const list=document.getElementById('evidenceList');
+  list.classList.toggle('open');
+  btn.querySelector('.evidence-toggle-count').textContent=list.classList.contains('open')?'6 / 6 ▴':'6 / 6 ▾';
+}
+function doAction(d){
+  const map={
+    accept:{icon:'✅',title:'ACCEPT Confirmed',sub:'Jane Martinez moved to phone screen stage.'},
+    hold:{icon:'⏸',title:'Moved to Hold',sub:'Jane Martinez placed on hold for further review.'},
+    reject:{icon:'❌',title:'REJECT Applied',sub:'Jane Martinez rejected. Audit log updated.'}
+  };
+  const m=map[d];
+  document.getElementById('overlayIcon').textContent=m.icon;
+  document.getElementById('overlayTitle').textContent=m.title;
+  document.getElementById('overlaySub').textContent=m.sub;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeOverlay(){document.getElementById('overlay').classList.remove('open');}
+</script>
+</body>
+</html>

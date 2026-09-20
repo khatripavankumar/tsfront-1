@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResumeScreeningOutput",
+  "description": "Required JSON output schema for LLM resume screening. Every response MUST conform to this schema.",
+  "type": "object",
+  "required": ["decision", "confidence", "evidence", "reason", "flags"],
+  "additionalProperties": false,
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": ["accept", "reject", "needs_review"],
+      "description": "The screening decision. 'accept' = candidate clearly meets requirements; 'reject' = candidate does not meet requirements; 'needs_review' = partial match requiring human review."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence score from 0.0 (no confidence) to 1.0 (fully confident). Must reflect actual evidence strength, not assumptions."
+    },
+    "evidence": {
+      "type": "array",
+      "description": "List of evidence items. Each quote MUST be an exact substring from the provided resume text. Do NOT fabricate or paraphrase.",
+      "items": {
+        "type": "object",
+        "required": ["quote", "relevance"],
+        "additionalProperties": false,
+        "properties": {
+          "quote": {
+            "type": "string",
+            "description": "An EXACT substring copied from the resume text. Must appear verbatim in the resume."
+          },
+          "relevance": {
+            "type": "string",
+            "description": "Brief explanation of how this quote relates to the job requirement."
+          }
+        }
+      }
+    },
+    "reason": {
+      "type": "string",
+      "description": "One-paragraph justification for the decision. Must reference only information present in the resume. Must not introduce external knowledge or assumptions."
+    },
+    "flags": {
+      "type": "array",
+      "description": "Optional flags for special conditions detected during screening.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "hallucination_risk",
+          "prompt_injection_detected",
+          "insufficient_detail",
+          "overqualified",
+          "career_change",
+          "gaps_in_employment"
+        ]
+      }
+    }
+  }
+}

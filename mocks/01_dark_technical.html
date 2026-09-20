@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — Dark Technical Review Console</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border2:#444c56;
+  --green:#3fb950;--green-dim:#238636;
+  --amber:#d29922;--red:#f85149;--blue:#58a6ff;--cyan:#79c0ff;--purple:#d2a8ff;
+  --text:#e6edf3;--text-dim:#8b949e;--text-muted:#484f58;
+}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Title Bar */
+.title-bar{background:#010409;border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.title-bar .dots{display:flex;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+.title-bar .title{font-size:11px;color:var(--text-dim);flex:1;text-align:center;letter-spacing:0.5px}
+.title-bar .badge{background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-size:10px;color:var(--cyan)}
+
+/* Nav Bar */
+.nav-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;flex-shrink:0;height:36px}
+.nav-tab{padding:0 14px;height:36px;display:flex;align-items:center;font-size:11px;color:var(--text-dim);border-bottom:2px solid transparent;cursor:pointer;gap:6px}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--blue)}
+.nav-tab:hover:not(.active){color:var(--text);background:var(--bg3)}
+.nav-spacer{flex:1}
+.nav-meta{font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:12px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* Main Layout */
+.main{display:grid;grid-template-columns:260px 1fr 280px;flex:1;overflow:hidden}
+
+/* Left Panel */
+.panel{overflow-y:auto;border-right:1px solid var(--border)}
+.panel:last-child{border-right:none}
+.panel-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 14px;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0}
+.panel-header .h-icon{color:var(--cyan)}
+.kv{padding:10px 14px;border-bottom:1px solid var(--border)}
+.kv-key{color:var(--text-dim);font-size:10px;margin-bottom:3px}
+.kv-val{color:var(--text);font-size:12px}
+.kv-val.green{color:var(--green)}
+.kv-val.amber{color:var(--amber)}
+.kv-val.blue{color:var(--blue)}
+.kv-val.cyan{color:var(--cyan)}
+.kv-val.purple{color:var(--purple)}
+.kv-group{padding:6px 14px 2px;background:var(--bg3);border-bottom:1px solid var(--border)}
+.kv-group-label{font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
+.tag{display:inline-block;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;font-size:10px;color:var(--text-dim);margin:2px 2px 0 0}
+.tag.skill{color:var(--cyan);border-color:#1f4e79}
+
+/* Center Panel */
+.center{display:flex;flex-direction:column;overflow:hidden}
+.decision-banner{background:linear-gradient(135deg,#0d2818 0%,#0d1117 100%);border-bottom:1px solid #238636;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.decision-label{font-size:24px;font-weight:700;color:var(--green);letter-spacing:2px}
+.decision-sub{font-size:10px;color:var(--text-dim);margin-top:2px}
+.conf-block{margin-left:auto;text-align:right}
+.conf-num{font-size:28px;font-weight:700;color:var(--green)}
+.conf-label{font-size:10px;color:var(--text-dim)}
+.conf-bar-wrap{width:180px;background:var(--bg3);border:1px solid var(--border);border-radius:2px;height:6px;margin-top:6px;position:relative}
+.conf-bar{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));border-radius:2px;width:92%;transition:width 1s ease}
+.conf-range{font-size:9px;color:var(--text-muted);margin-top:2px;text-align:right}
+.center-body{flex:1;overflow-y:auto;padding:16px 20px}
+
+.section-title{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.evidence-item{background:var(--bg2);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden}
+.ev-header{padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.ev-num{background:var(--bg3);border:1px solid var(--border2);width:20px;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--cyan);flex-shrink:0}
+.ev-quote{font-size:11px;color:var(--green);flex:1;font-style:italic}
+.ev-match{font-size:9px;color:var(--text-dim);margin-left:auto;flex-shrink:0}
+.ev-body{padding:0 12px 10px 40px;font-size:11px;color:var(--text-dim);border-top:1px solid var(--border);display:none}
+.ev-body.open{display:block;padding-top:8px}
+.code-block{background:#010409;border:1px solid var(--border);border-radius:4px;padding:8px 10px;margin-top:6px;font-size:11px;color:var(--amber);word-break:break-word;line-height:1.6}
+
+.reason-block{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-top:16px;font-size:11px;color:var(--text-dim);line-height:1.7}
+
+.flags-row{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+.flag-chip{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:3px 10px;font-size:10px}
+.flag-chip.pass{color:var(--green);border-color:#238636}
+.flag-chip.warn{color:var(--amber);border-color:#7d4e17}
+
+/* Right Panel */
+.right-panel{overflow-y:auto}
+.action-section{padding:14px}
+.action-title{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.override-btn{width:100%;padding:9px 12px;border-radius:4px;border:1px solid;font-family:inherit;font-size:11px;cursor:pointer;margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.2s}
+.override-btn .btn-icon{font-size:14px}
+.btn-accept{background:#0d2818;border-color:var(--green-dim);color:var(--green)}
+.btn-accept:hover{background:#0d2818;border-color:var(--green);box-shadow:0 0 8px rgba(63,185,80,0.3)}
+.btn-hold{background:#1c1700;border-color:#7d4e17;color:var(--amber)}
+.btn-hold:hover{border-color:var(--amber);box-shadow:0 0 8px rgba(210,153,34,0.3)}
+.btn-reject{background:#1c0a0a;border-color:#7d2020;color:var(--red)}
+.btn-reject:hover{border-color:var(--red);box-shadow:0 0 8px rgba(248,81,73,0.3)}
+
+.sep{border:none;border-top:1px solid var(--border);margin:12px 0}
+
+.audit-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}
+.audit-item:last-child{border-bottom:none}
+.audit-dot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.audit-dot.done{background:var(--green)}
+.audit-dot.pending{background:var(--border2)}
+.audit-dot.active{background:var(--amber);animation:pulse 1.5s infinite}
+.audit-info{font-size:10px}
+.audit-time{color:var(--text-muted);font-size:9px;margin-bottom:2px}
+.audit-action{color:var(--text-dim)}
+.audit-actor{color:var(--blue);font-size:9px;margin-top:1px}
+
+/* Status Bar */
+.status-bar{background:#010409;border-top:1px solid var(--border);padding:4px 16px;display:flex;align-items:center;gap:20px;font-size:10px;color:var(--text-muted);flex-shrink:0}
+.status-item{display:flex;align-items:center;gap:4px}
+.status-item .label{color:var(--text-muted)}
+.status-item .val{color:var(--text-dim)}
+.status-item .green{color:var(--green)}
+
+/* Toast */
+.toast{position:fixed;bottom:40px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px 18px;font-size:12px;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:1000;transform:translateY(60px);opacity:0;transition:all 0.3s ease;display:flex;align-items:center;gap:10px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-icon{font-size:16px}
+</style>
+</head>
+<body>
+
+<!-- Title Bar -->
+<div class="title-bar">
+  <div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+  <div class="title">TXScreen Review Console — Dark Technical Mode &nbsp;|&nbsp; Audience: Technical Reviewers &amp; Power Users</div>
+  <div class="badge">txscreen-v2.1.0</div>
+</div>
+
+<!-- Nav Bar -->
+<div class="nav-bar">
+  <div class="nav-tab active">⬛ Review</div>
+  <div class="nav-tab">📋 Queue (47)</div>
+  <div class="nav-tab">📊 Analytics</div>
+  <div class="nav-tab">⚙ Config</div>
+  <div class="nav-spacer"></div>
+  <div class="nav-meta">
+    <span><span class="status-dot"></span>Connected</span>
+    <span>Session: sk-r3c-8841</span>
+    <span>Sarah K. (Recruiter)</span>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="main">
+
+  <!-- Left Panel: Candidate & Job Metadata -->
+  <div class="panel">
+    <div class="panel-header"><span><span class="h-icon">◈</span> CANDIDATE</span></div>
+    <div class="kv"><div class="kv-key">name</div><div class="kv-val">Jane Martinez</div></div>
+    <div class="kv"><div class="kv-key">current_role</div><div class="kv-val blue">Lead Python Developer</div></div>
+    <div class="kv"><div class="kv-key">employer</div><div class="kv-val">CloudScale Inc.</div></div>
+    <div class="kv"><div class="kv-key">education</div><div class="kv-val">B.Sc. Computer Science, UT Austin, 2017</div></div>
+    <div class="kv"><div class="kv-key">exp_years</div><div class="kv-val green">7</div></div>
+    <div class="kv"><div class="kv-key">app_id</div><div class="kv-val cyan">#APP-2026-04821</div></div>
+
+    <div class="panel-header"><span><span class="h-icon">◈</span> JOB REQUIREMENT</span></div>
+    <div class="kv"><div class="kv-key">role</div><div class="kv-val">Senior Python Developer</div></div>
+    <div class="kv"><div class="kv-key">req_experience</div><div class="kv-val">5+ years Python</div></div>
+    <div class="kv"><div class="kv-key">req_skills</div>
+      <div class="kv-val" style="margin-top:4px">
+        <span class="tag skill">Python</span><span class="tag skill">Django</span><span class="tag skill">Flask</span>
+        <span class="tag skill">REST API</span><span class="tag skill">PostgreSQL</span><span class="tag skill">pytest</span>
+        <span class="tag skill">CI/CD</span><span class="tag skill">Agile</span>
+      </div>
+    </div>
+
+    <div class="panel-header"><span><span class="h-icon">◈</span> MODEL METADATA</span></div>
+    <div class="kv"><div class="kv-key">model_version</div><div class="kv-val purple">txscreen-v2.1.0</div></div>
+    <div class="kv"><div class="kv-key">prompt_template</div><div class="kv-val cyan">resume-screening-v3</div></div>
+    <div class="kv"><div class="kv-key">screened_at</div><div class="kv-val">2026-09-03T09:14:02Z</div></div>
+    <div class="kv"><div class="kv-key">latency_ms</div><div class="kv-val green">1214</div></div>
+    <div class="kv"><div class="kv-key">tokens_used</div><div class="kv-val">847 / 4096</div></div>
+    <div class="kv"><div class="kv-key">evidence_count</div><div class="kv-val green">6</div></div>
+    <div class="kv"><div class="kv-key">flags</div><div class="kv-val"><span class="tag">NONE</span></div></div>
+  </div>
+
+  <!-- Center Panel: AI Decision + Evidence -->
+  <div class="center">
+    <div class="decision-banner">
+      <div>
+        <div class="decision-label">✓ ACCEPT</div>
+        <div class="decision-sub">AI Screening Decision — Jane Martinez → Senior Python Developer</div>
+      </div>
+      <div class="conf-block">
+        <div class="conf-num">92<span style="font-size:16px;color:var(--text-dim)">%</span></div>
+        <div class="conf-label">confidence score</div>
+        <div class="conf-bar-wrap"><div class="conf-bar" id="confBar"></div></div>
+        <div class="conf-range">range: 88% – 96% &nbsp;(±4%)</div>
+      </div>
+    </div>
+
+    <div class="center-body">
+      <div class="section-title">EVIDENCE RECORD — 6 / 6 Requirements Matched</div>
+
+      <div class="evidence-item">
+        <div class="ev-header" onclick="toggleEv(this)">
+          <div class="ev-num">01</div>
+          <div class="ev-quote">"Lead Python Developer at CloudScale Inc. (2019–2024)"</div>
+          <div class="ev-match">✓ REQ: 5+ yrs Python</div>
+        </div>
+        <div class="ev-body open">
+          <div>Requirement: 5+ years Python experience</div>
+          <div class="code-block">$ evidence.quote → "Lead Python Developer at CloudScale Inc. (2019–2024)"<br>$ match.years_computed → 5<br>$ req.threshold → 5<br>$ verdict → PASS ✓</div>
+        </div>
+      </div>
+
+      <div class="evidence-item">
+        <div class="ev-header" onclick="toggleEv(this)">
+          <div class="ev-num">02</div>
+          <div class="ev-quote">"Architected and maintained 12 Django-based microservices handling 2M+ daily requests"</div>
+          <div class="ev-match">✓ REQ: Django/Flask</div>
+        </div>
+        <div class="ev-body">
+          <div>Requirement: Strong Django/Flask background</div>
+          <div class="code-block">$ evidence.quote → "...12 Django-based microservices handling 2M+ daily requests"<br>$ match.framework → Django<br>$ match.scale → production-grade (2M+/day)<br>$ verdict → PASS ✓ (strong signal)</div>
+        </div>
+      </div>
+
+      <div class="evidence-item">
+        <div class="ev-header" onclick="toggleEv(this)">
+          <div class="ev-num">03</div>
+          <div class="ev-quote">"Designed RESTful APIs consumed by mobile and web clients"</div>
+          <div class="ev-match">✓ REQ: REST API</div>
+        </div>
+        <div class="ev-body">
+          <div>Requirement: REST API design</div>
+          <div class="code-block">$ evidence.quote → "Designed RESTful APIs consumed by mobile and web clients"<br>$ match.type → REST API Design<br>$ match.context → multi-platform<br>$ verdict → PASS ✓</div>
+        </div>
+      </div>
+
+      <div class="evidence-item">
+        <div class="ev-header" onclick="toggleEv(this)">
+          <div class="ev-num">04</div>
+          <div class="ev-quote">"Managed PostgreSQL databases with complex query optimization"</div>
+          <div class="ev-match">✓ REQ: PostgreSQL</div>
+        </div>
+        <div class="ev-body">
+          <div>Requirement: PostgreSQL</div>
+          <div class="code-block">$ evidence.quote → "Managed PostgreSQL databases with complex query optimization"<br>$ match.db → PostgreSQL<br>$ match.depth → advanced (query optimization)<br>$ verdict → PASS ✓</div>
+        </div>
+      </div>
+
+      <div class="evidence-item">
+        <div class="ev-header" onclick="toggleEv(this)">
+          <div class="ev-num">05</div>
+          <div class="ev-quote">"pytest achieving 94% code coverage"</div>
+          <div class="ev-match">✓ REQ: pytest</div>
+        </div>
+        <div class="ev-body">
+          <div>Requirement: Unit testing with pytest</div>
+          <div class="code-block">$ evidence.quote → "pytest achieving 94% code coverage"<br>$ match.framework → pytest<br>$ match.coverage → 94% (above industry avg 80%)<br>$ verdict → PASS ✓ (strong signal)</div>
+        </div>
+      </div>
+
+      <div class="evidence-item">
+        <div class="ev-header" onclick="toggleEv(this)">
+          <div class="ev-num">06</div>
+          <div class="ev-quote">"CI/CD pipelines with GitHub Actions and Jenkins"</div>
+          <div class="ev-match">✓ REQ: CI/CD</div>
+        </div>
+        <div class="ev-body">
+          <div>Requirement: CI/CD pipelines</div>
+          <div class="code-block">$ evidence.quote → "CI/CD pipelines with GitHub Actions and Jenkins"<br>$ match.tools → ["GitHub Actions", "Jenkins"]<br>$ match.scope → 2 tools (exceeds requirement)<br>$ verdict → PASS ✓</div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:20px">AI REASONING</div>
+      <div class="reason-block">
+        Candidate Jane Martinez demonstrates clear, explicit evidence for all stated job requirements. Her 5-year tenure as Lead Python Developer at CloudScale Inc. satisfies the experience threshold. Production-scale Django microservice architecture (2M+ daily requests), REST API design for multi-platform clients, advanced PostgreSQL query optimization, pytest unit testing with measurable 94% coverage, and CI/CD pipeline experience with both GitHub Actions and Jenkins collectively indicate strong alignment with all core requirements. No flags detected. Confidence in ACCEPT decision: 92% ± 4%.
+      </div>
+
+      <div class="flags-row">
+        <span class="flag-chip pass">✓ NO_INJECTION</span>
+        <span class="flag-chip pass">✓ NO_HALLUCINATION_RISK</span>
+        <span class="flag-chip pass">✓ EVIDENCE_COMPLETE</span>
+        <span class="flag-chip pass">✓ EXPERIENCE_VERIFIED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Override + Audit -->
+  <div class="right-panel">
+    <div class="panel-header"><span><span class="h-icon">◈</span> REVIEWER OVERRIDE</span></div>
+    <div class="action-section">
+      <div class="action-title">Confirm or override AI decision</div>
+      <button class="override-btn btn-accept" onclick="override('accept')"><span class="btn-icon">✓</span> Confirm ACCEPT</button>
+      <button class="override-btn btn-hold" onclick="override('hold')"><span class="btn-icon">⏸</span> Override → HOLD</button>
+      <button class="override-btn btn-reject" onclick="override('reject')"><span class="btn-icon">✗</span> Override → REJECT</button>
+    </div>
+
+    <div class="sep"></div>
+    <div class="panel-header"><span><span class="h-icon">◈</span> AUDIT LOG</span></div>
+    <div class="action-section">
+      <div class="audit-item">
+        <div class="audit-dot done"></div>
+        <div class="audit-info">
+          <div class="audit-time">2026-09-03 09:14:02 UTC</div>
+          <div class="audit-action">AI screening completed → ACCEPT [92%]</div>
+          <div class="audit-actor">actor: txscreen-v2.1.0</div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-dot done"></div>
+        <div class="audit-info">
+          <div class="audit-time">2026-09-03 09:15:11 UTC</div>
+          <div class="audit-action">Result queued for recruiter review</div>
+          <div class="audit-actor">actor: system</div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-dot active"></div>
+        <div class="audit-info">
+          <div class="audit-time">PENDING</div>
+          <div class="audit-action">Recruiter review in progress</div>
+          <div class="audit-actor">actor: Sarah K. (Lead Recruiter)</div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-dot pending"></div>
+        <div class="audit-info">
+          <div class="audit-time">PENDING</div>
+          <div class="audit-action">Hiring manager sign-off required</div>
+          <div class="audit-actor">actor: —</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <div class="panel-header"><span><span class="h-icon">◈</span> SESSION INFO</span></div>
+    <div class="action-section">
+      <div class="kv-key" style="padding:0">review_session_id</div>
+      <div class="kv-val cyan" style="font-size:10px;padding:3px 0 8px">rv-2026-09-8841</div>
+      <div class="kv-key" style="padding:0">reviewer</div>
+      <div class="kv-val" style="padding:3px 0 8px">Sarah K.</div>
+      <div class="kv-key" style="padding:0">queue_position</div>
+      <div class="kv-val" style="padding:3px 0 8px">1 of 47</div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <div class="status-item"><span class="status-dot"></span><span class="val green">CONNECTED</span></div>
+  <div class="status-item"><span class="label">model:</span><span class="val">txscreen-v2.1.0</span></div>
+  <div class="status-item"><span class="label">latency:</span><span class="val">1,214ms</span></div>
+  <div class="status-item"><span class="label">tokens:</span><span class="val">847/4096</span></div>
+  <div class="status-item"><span class="label">prompt:</span><span class="val">resume-screening-v3</span></div>
+  <div class="status-item" style="margin-left:auto"><span class="label">queue:</span><span class="val">46 remaining</span></div>
+  <div class="status-item"><span class="label">session:</span><span class="val">rv-2026-09-8841</span></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✓</span>
+  <span id="toastMsg">Decision recorded.</span>
+</div>
+
+<script>
+function toggleEv(header){
+  const body=header.nextElementSibling;
+  body.classList.toggle('open');
+}
+function override(decision){
+  const map={accept:{msg:'Decision CONFIRMED: ACCEPT recorded in audit log.',icon:'✓',color:'#3fb950'},
+             hold:{msg:'Override applied: Candidate moved to HOLD status.',icon:'⏸',color:'#d29922'},
+             reject:{msg:'Override applied: Candidate REJECTED. Audit log updated.',icon:'✗',color:'#f85149'}};
+  const d=map[decision];
+  const toast=document.getElementById('toast');
+  const icon=document.getElementById('toastIcon');
+  const msg=document.getElementById('toastMsg');
+  icon.textContent=d.icon;icon.style.color=d.color;
+  msg.textContent=d.msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3500);
+}
+// Animate confidence bar
+window.addEventListener('load',()=>{
+  const bar=document.getElementById('confBar');
+  bar.style.width='0%';
+  setTimeout(()=>{bar.style.width='92%';},300);
+});
+</script>
+</body>
+</html>

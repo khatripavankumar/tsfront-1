@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — Compliance & Audit Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafaf9;--white:#fff;--border:#d4d4d4;--border2:#a3a3a3;
+  --text:#171717;--text2:#404040;--text3:#737373;--text4:#a3a3a3;
+  --green:#15803d;--green-bg:#f0fdf4;--green-border:#86efac;
+  --amber:#b45309;--amber-bg:#fffbeb;
+  --red:#b91c1c;--red-bg:#fef2f2;
+  --blue:#1d4ed8;--blue-bg:#eff6ff;
+  --pass-green:#15803d;--fail-red:#b91c1c;--pending-amber:#b45309;
+  --heading-font:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--heading-font);font-size:13px;min-height:100vh}
+
+/* Top Classification Banner */
+.classification-banner{background:#171717;padding:6px 24px;text-align:center;font-size:11px;font-weight:600;color:#e5e5e5;letter-spacing:2px;text-transform:uppercase}
+
+/* Document Header */
+.doc-header{background:var(--white);border-bottom:3px solid #171717;padding:20px 40px;display:flex;align-items:flex-start;gap:20px}
+.doc-header-main{flex:1}
+.doc-org{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.doc-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px}
+.doc-subtitle{font-size:13px;color:var(--text2)}
+.doc-ref-table{border-collapse:collapse;font-size:11px;margin-top:8px}
+.doc-ref-table td{padding:2px 16px 2px 0;color:var(--text3)}
+.doc-ref-table td:first-child{color:var(--text4);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.doc-logo{width:80px;height:80px;background:#171717;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;font-weight:800;flex-shrink:0}
+
+/* Page content */
+.doc-body{padding:30px 40px;max-width:1100px;margin:0 auto}
+
+/* Sections */
+.section{margin-bottom:28px;background:var(--white);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.section-header{background:#f5f5f5;border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.section-num{width:24px;height:24px;background:#171717;color:white;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text)}
+.section-body{padding:16px}
+
+/* Info table */
+.info-table{width:100%;border-collapse:collapse;font-size:12px}
+.info-table tr{border-bottom:1px solid var(--border)}
+.info-table tr:last-child{border-bottom:none}
+.info-table td{padding:8px 12px;vertical-align:top}
+.info-table .col-label{color:var(--text3);font-weight:600;width:200px;white-space:nowrap;background:#fafafa}
+.info-table .col-value{color:var(--text2)}
+
+/* Model metadata table */
+.model-table{width:100%;border-collapse:collapse;font-size:11px}
+.model-table th{background:#171717;color:white;padding:7px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.8px}
+.model-table td{padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--text2)}
+.model-table tr:last-child td{border-bottom:none}
+
+/* Decision section */
+.decision-formal{background:var(--green-bg);border:1px solid var(--green-border);border-radius:4px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:16px}
+.dec-formal-badge{background:var(--green);color:white;font-size:16px;font-weight:800;padding:10px 20px;border-radius:4px;letter-spacing:2px}
+.dec-formal-statement{font-size:13px;color:var(--text2);line-height:1.6}
+.dec-formal-statement strong{color:var(--pass-green)}
+
+/* Confidence formal */
+.conf-formal{border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:14px}
+.conf-formal-row{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+.conf-formal-num{font-size:32px;font-weight:800;color:var(--green)}
+.conf-formal-details{font-size:12px;color:var(--text3);display:flex;flex-direction:column;gap:3px}
+.conf-formal-bar-wrap{position:relative;height:20px;background:#f5f5f5;border:1px solid var(--border);border-radius:3px;overflow:visible}
+.conf-formal-fill{height:100%;background:var(--green);width:92%;position:relative}
+.conf-marker{position:absolute;top:0;bottom:0;width:2px;background:#171717}
+.conf-marker-lb{left:88%}
+.conf-marker-ub{left:96%}
+.conf-marker-label{position:absolute;top:-18px;font-size:9px;font-weight:700;white-space:nowrap;transform:translateX(-50%)}
+.conf-scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text4);margin-top:4px}
+
+/* Flag badges */
+.flag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.flag-item{border:1px solid var(--border);border-radius:4px;padding:10px 12px;text-align:center}
+.flag-status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;display:inline-block;margin-bottom:4px}
+.flag-pass{background:var(--green-bg);color:var(--pass-green);border:1px solid var(--green-border)}
+.flag-fail{background:var(--red-bg);color:var(--fail-red);border:1px solid #fca5a5}
+.flag-na{background:#f5f5f5;color:var(--text3);border:1px solid var(--border)}
+.flag-name{font-size:11px;color:var(--text2);font-weight:600}
+
+/* Evidence formal table */
+.ev-table{width:100%;border-collapse:collapse;font-size:11px}
+.ev-table th{background:#171717;color:white;padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.8px}
+.ev-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.5}
+.ev-table tr:last-child td{border-bottom:none}
+.ev-table tr:hover td{background:#f9f9f9}
+.ev-id{font-family:var(--mono);color:var(--blue);font-weight:600;font-size:10px}
+.ev-quote-formal{font-style:italic;color:var(--text);background:#fffbf0;border-left:3px solid #ca8a04;padding:4px 8px;border-radius:0 3px 3px 0;margin:2px 0;font-size:11px;font-family:var(--mono)}
+.ev-match-badge{background:var(--green-bg);color:var(--pass-green);border:1px solid var(--green-border);border-radius:3px;padding:2px 7px;font-size:9px;font-weight:700}
+.ev-relevance-score{font-family:var(--mono);color:var(--blue);font-weight:600}
+
+/* Override section */
+.override-pending-banner{background:var(--amber-bg);border:1px solid var(--amber-border, #fcd34d);border-radius:4px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.override-status-badge{background:var(--amber);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:3px;letter-spacing:1px;white-space:nowrap}
+.override-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-field label{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
+.form-field input,.form-field select{width:100%;border:1px solid var(--border);border-radius:3px;padding:8px 10px;font-family:inherit;font-size:12px;color:var(--text);background:white;outline:none}
+.form-field input:focus,.form-field select:focus{border-color:var(--blue)}
+.form-field.full{grid-column:1/-1}
+.form-field textarea{width:100%;border:1px solid var(--border);border-radius:3px;padding:8px 10px;font-family:inherit;font-size:12px;color:var(--text);resize:vertical;min-height:64px;outline:none}
+.form-field textarea:focus{border-color:var(--blue)}
+.override-btns{display:flex;gap:8px;flex-wrap:wrap}
+.ov-formal-btn{padding:10px 20px;border-radius:4px;border:1px solid;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.ov-accept{background:var(--green-bg);color:var(--pass-green);border-color:var(--green-border)}
+.ov-accept:hover{background:var(--green);color:white}
+.ov-hold{background:var(--amber-bg);color:var(--amber);border-color:#fcd34d}
+.ov-hold:hover{background:var(--amber);color:white}
+.ov-reject{background:var(--red-bg);color:var(--fail-red);border-color:#fca5a5}
+.ov-reject:hover{background:var(--red);color:white}
+
+/* Audit table */
+.audit-table{width:100%;border-collapse:collapse;font-size:11px}
+.audit-table th{background:#404040;color:white;padding:7px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.8px}
+.audit-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.audit-table tr:last-child td{border-bottom:none}
+.audit-status-done{color:var(--pass-green);font-weight:600}
+.audit-status-active{color:var(--blue);font-weight:600}
+.audit-status-pending{color:var(--text4)}
+.audit-hash{font-family:var(--mono);font-size:10px;color:var(--text4)}
+
+/* Footer */
+.doc-footer{border-top:2px solid var(--border2);padding:16px 40px;background:var(--white);margin-top:20px;display:flex;gap:20px;align-items:flex-start;font-size:11px;color:var(--text3)}
+.footer-legal{flex:1;line-height:1.6}
+.footer-sig{border:1px solid var(--border);border-radius:4px;padding:12px 16px;min-width:200px;text-align:center}
+.footer-sig .sig-line{border-bottom:1px solid var(--border2);height:32px;margin-bottom:4px}
+.footer-sig .sig-label{font-size:10px;color:var(--text4);text-transform:uppercase;letter-spacing:0.5px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#171717;color:white;border-radius:6px;padding:11px 20px;font-size:12px;font-weight:500;z-index:100;opacity:0;transform:translateY(20px);transition:all 0.3s;max-width:340px}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="classification-banner">INTERNAL — CONFIDENTIAL &nbsp;|&nbsp; AI Screening Review Record &nbsp;|&nbsp; Authorized Personnel Only</div>
+
+<div class="doc-header">
+  <div class="doc-header-main">
+    <div class="doc-org">TXScreen AI Platform — Compliance Division</div>
+    <div class="doc-title">AI Screening Review Record</div>
+    <div class="doc-subtitle">Compliance &amp; Audit-First View &nbsp;|&nbsp; Audience: Legal, Compliance &amp; Audit Teams</div>
+    <table class="doc-ref-table">
+      <tr><td>Document Ref:</td><td>TXS-2026-09-001</td><td>Classification:</td><td>Internal — Confidential</td></tr>
+      <tr><td>Generated:</td><td>2026-09-03 09:14:07 UTC</td><td>Review Status:</td><td>⏳ PENDING RECRUITER REVIEW</td></tr>
+    </table>
+  </div>
+  <div class="doc-logo">TX</div>
+</div>
+
+<div class="doc-body">
+
+  <!-- Section 1: Model Metadata -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">1</div><div class="section-title">Model &amp; System Metadata</div></div>
+    <div class="section-body">
+      <table class="model-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Model Version</td><td>txscreen-v2.1.0</td><td>Current production model</td></tr>
+          <tr><td>Prompt Template</td><td>resume-screening-v3</td><td>Evidence-based, no inference</td></tr>
+          <tr><td>Screening Timestamp</td><td>2026-09-03T09:14:02.417Z</td><td>UTC, ISO 8601</td></tr>
+          <tr><td>Response Latency</td><td>1,214 ms</td><td>Within SLA (&lt;5,000ms)</td></tr>
+          <tr><td>Tokens Used</td><td>847 / 4,096</td><td>20.7% of context window</td></tr>
+          <tr><td>System Hash</td><td>sha256:a4f8c2d1e7b3...</td><td>Prompt integrity verified</td></tr>
+          <tr><td>Bias Audit Status</td><td>PASS — no protected attributes referenced</td><td>Last audited 2026-08-01</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 2: Candidate Information -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">2</div><div class="section-title">Candidate Information</div></div>
+    <div class="section-body">
+      <table class="info-table">
+        <tr><td class="col-label">Full Name</td><td class="col-value">Jane Martinez</td></tr>
+        <tr><td class="col-label">Current Role</td><td class="col-value">Lead Python Developer at CloudScale Inc.</td></tr>
+        <tr><td class="col-label">Education</td><td class="col-value">B.Sc. Computer Science, University of Texas, Austin, 2017</td></tr>
+        <tr><td class="col-label">Application ID</td><td class="col-value">#APP-2026-04821</td></tr>
+        <tr><td class="col-label">Application Date</td><td class="col-value">2026-09-02</td></tr>
+        <tr><td class="col-label">Job Applied For</td><td class="col-value">Senior Python Developer</td></tr>
+        <tr><td class="col-label">Estimated YOE</td><td class="col-value">~7 years (as indicated by resume dates)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 3: Job Requirements -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">3</div><div class="section-title">Job Requirements Summary</div></div>
+    <div class="section-body">
+      <table class="info-table">
+        <tr><td class="col-label">Role Title</td><td class="col-value">Senior Python Developer</td></tr>
+        <tr><td class="col-label">Required Experience</td><td class="col-value">5+ years Python development experience</td></tr>
+        <tr><td class="col-label">Required Skills</td><td class="col-value">Python, Django/Flask, REST API design, PostgreSQL, pytest (unit testing), CI/CD pipelines, Agile methodology</td></tr>
+        <tr><td class="col-label">Total Requirements</td><td class="col-value">6 distinct requirement categories</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 4: AI Decision Record -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">4</div><div class="section-title">AI Decision Record</div></div>
+    <div class="section-body">
+      <div class="decision-formal">
+        <div class="dec-formal-badge">ACCEPT</div>
+        <div class="dec-formal-statement">
+          The AI screening system (<strong>txscreen-v2.1.0</strong>) has evaluated the candidate's resume against the stated job requirements and determined: <strong>ACCEPT</strong>. All 6 requirement categories are evidenced by verbatim quotes from the resume. No disqualifying flags were detected.
+        </div>
+      </div>
+
+      <div class="conf-formal">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Confidence &amp; Uncertainty Quantification</div>
+        <div class="conf-formal-row">
+          <div class="conf-formal-num">92%</div>
+          <div class="conf-formal-details">
+            <div><strong>Point estimate:</strong> 92.0%</div>
+            <div><strong>Uncertainty band:</strong> ±4.0%</div>
+            <div><strong>95% confidence interval:</strong> [88.0%, 96.0%]</div>
+            <div><strong>Decision threshold:</strong> ≥80% → ACCEPT</div>
+          </div>
+        </div>
+        <div class="conf-formal-bar-wrap">
+          <div class="conf-formal-fill">
+            <div class="conf-marker conf-marker-lb"><div class="conf-marker-label">88%</div></div>
+            <div class="conf-marker conf-marker-ub"><div class="conf-marker-label">96%</div></div>
+          </div>
+        </div>
+        <div class="conf-scale-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Flag Status</div>
+      <div class="flag-grid">
+        <div class="flag-item"><div class="flag-status-badge flag-pass">PASS</div><div class="flag-name">Prompt Injection Detection</div></div>
+        <div class="flag-item"><div class="flag-status-badge flag-pass">PASS</div><div class="flag-name">Hallucination Risk Check</div></div>
+        <div class="flag-item"><div class="flag-status-badge flag-pass">PASS</div><div class="flag-name">Evidence Completeness</div></div>
+        <div class="flag-item"><div class="flag-status-badge flag-pass">PASS</div><div class="flag-name">Verbatim Quote Verification</div></div>
+        <div class="flag-item"><div class="flag-status-badge flag-na">N/A</div><div class="flag-name">Employment Gaps</div></div>
+        <div class="flag-item"><div class="flag-status-badge flag-na">N/A</div><div class="flag-name">Overqualification Signal</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Evidence Record -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">5</div><div class="section-title">Evidence Record — Verbatim Resume Quotes</div></div>
+    <div class="section-body">
+      <table class="ev-table">
+        <thead><tr><th>Evidence ID</th><th>Exact Quote (verbatim from resume)</th><th>Requirement Matched</th><th>Relevance</th><th>Match</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="ev-id">EV-001</td>
+            <td><div class="ev-quote-formal">"Lead Python Developer at CloudScale Inc. (2019–2024)"</div></td>
+            <td>5+ years Python experience</td>
+            <td>5 years direct Python leadership role. Threshold met exactly.</td>
+            <td><span class="ev-match-badge">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td class="ev-id">EV-002</td>
+            <td><div class="ev-quote-formal">"Architected and maintained 12 Django-based microservices handling 2M+ daily requests"</div></td>
+            <td>Django/Flask background</td>
+            <td>Production-scale Django architecture. Strong positive signal.</td>
+            <td><span class="ev-match-badge">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td class="ev-id">EV-003</td>
+            <td><div class="ev-quote-formal">"Designed RESTful APIs consumed by mobile and web clients"</div></td>
+            <td>REST API design</td>
+            <td>Direct REST API design experience, multi-platform scope.</td>
+            <td><span class="ev-match-badge">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td class="ev-id">EV-004</td>
+            <td><div class="ev-quote-formal">"Managed PostgreSQL databases with complex query optimization"</div></td>
+            <td>PostgreSQL</td>
+            <td>Explicit PostgreSQL with advanced scope (query optimization).</td>
+            <td><span class="ev-match-badge">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td class="ev-id">EV-005</td>
+            <td><div class="ev-quote-formal">"pytest achieving 94% code coverage"</div></td>
+            <td>Unit testing with pytest</td>
+            <td>Direct pytest evidence with measurable outcome (94% coverage).</td>
+            <td><span class="ev-match-badge">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td class="ev-id">EV-006</td>
+            <td><div class="ev-quote-formal">"CI/CD pipelines with GitHub Actions and Jenkins"</div></td>
+            <td>CI/CD pipelines</td>
+            <td>Dual CI/CD tool experience. Exceeds single-tool requirement.</td>
+            <td><span class="ev-match-badge">✓ PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 6: Reviewer Override -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">6</div><div class="section-title">Reviewer Override Record</div></div>
+    <div class="section-body">
+      <div class="override-pending-banner">
+        <div class="override-status-badge">PENDING REVIEW</div>
+        <div style="font-size:12px;color:var(--amber)">This AI decision requires human recruiter review before it becomes final. An override reason is required if the AI decision is not confirmed.</div>
+      </div>
+
+      <div class="override-form">
+        <div class="form-field"><label>Reviewer Name</label><input type="text" placeholder="e.g. Sarah Kim" value="Sarah Kim"></div>
+        <div class="form-field"><label>Reviewer Title</label><input type="text" placeholder="e.g. Lead Recruiter" value="Lead Recruiter"></div>
+        <div class="form-field"><label>Review Date</label><input type="date" value="2026-09-03"></div>
+        <div class="form-field"><label>Override Decision</label>
+          <select><option value="">— Select decision —</option><option>Confirm AI Decision (ACCEPT)</option><option>Override to HOLD</option><option>Override to REJECT</option></select>
+        </div>
+        <div class="form-field full"><label>Override Reason (required if not confirming AI decision)</label><textarea placeholder="Enter detailed justification for overriding the AI recommendation..."></textarea></div>
+      </div>
+
+      <div class="override-btns">
+        <button class="ov-formal-btn ov-accept" onclick="doOverride('confirm')">✓ Confirm AI Decision (ACCEPT)</button>
+        <button class="ov-formal-btn ov-hold" onclick="doOverride('hold')">⏸ Override to HOLD — Requires Reason</button>
+        <button class="ov-formal-btn ov-reject" onclick="doOverride('reject')">✕ Override to REJECT — Requires Reason</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 7: Audit Trail -->
+  <div class="section">
+    <div class="section-header"><div class="section-num">7</div><div class="section-title">Audit Trail — Chronological Event Log</div></div>
+    <div class="section-body">
+      <table class="audit-table">
+        <thead><tr><th>Timestamp (UTC)</th><th>Actor</th><th>Event</th><th>Status</th><th>System Hash</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>2026-09-03 09:14:02</td>
+            <td>txscreen-v2.1.0 (automated)</td>
+            <td>Resume received and preprocessing initiated</td>
+            <td class="audit-status-done">COMPLETE</td>
+            <td class="audit-hash">sha256:a4f8c2d1...</td>
+          </tr>
+          <tr>
+            <td>2026-09-03 09:14:03</td>
+            <td>txscreen-v2.1.0 (automated)</td>
+            <td>Prompt injection scan — PASS. No adversarial content detected</td>
+            <td class="audit-status-done">COMPLETE</td>
+            <td class="audit-hash">sha256:b7e3a1f9...</td>
+          </tr>
+          <tr>
+            <td>2026-09-03 09:14:05</td>
+            <td>txscreen-v2.1.0 (automated)</td>
+            <td>AI evaluation completed → ACCEPT [92% ± 4%]. 6 evidence quotes generated</td>
+            <td class="audit-status-done">COMPLETE</td>
+            <td class="audit-hash">sha256:c9d2e5b8...</td>
+          </tr>
+          <tr>
+            <td>2026-09-03 09:15:11</td>
+            <td>System (automated)</td>
+            <td>Screening result queued to recruiter review dashboard</td>
+            <td class="audit-status-done">COMPLETE</td>
+            <td class="audit-hash">sha256:d1f4c7a3...</td>
+          </tr>
+          <tr>
+            <td>2026-09-03 09:25:00</td>
+            <td>Sarah Kim (Lead Recruiter)</td>
+            <td>Recruiter opened review screen — active review session started</td>
+            <td class="audit-status-active">IN PROGRESS</td>
+            <td class="audit-hash">sha256:e2b6d9c1...</td>
+          </tr>
+          <tr>
+            <td>—</td>
+            <td>Sarah Kim (Lead Recruiter)</td>
+            <td>Recruiter override or confirmation decision (pending)</td>
+            <td class="audit-status-pending">PENDING</td>
+            <td class="audit-hash">—</td>
+          </tr>
+          <tr>
+            <td>—</td>
+            <td>Hiring Manager (TBD)</td>
+            <td>Hiring manager final sign-off required before offer stage</td>
+            <td class="audit-status-pending">PENDING</td>
+            <td class="audit-hash">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  <div class="footer-legal">
+    <strong>Legal Disclaimer:</strong> This AI screening report is generated by txscreen-v2.1.0 and is intended for use as a supplementary tool only. All AI recommendations require human review and must not be used as the sole basis for hiring decisions. This document is subject to data protection regulations. Retain for minimum 3 years per internal policy.<br><br>
+    <strong>Bias Notice:</strong> TXScreen evaluates resume content only. No demographic, protected, or inferential characteristics are used in scoring. Model audited quarterly by the AI Ethics Committee.
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="footer-sig">
+      <div class="sig-line"></div>
+      <div class="sig-label">Recruiter Signature / Date</div>
+    </div>
+    <div class="footer-sig">
+      <div class="sig-line"></div>
+      <div class="sig-label">Hiring Manager Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function doOverride(d){
+  const msgs={
+    confirm:'✅ AI decision confirmed: ACCEPT. Audit log entry created. Sarah Kim · 2026-09-03.',
+    hold:'⏸ Override to HOLD recorded. Justification required before proceeding.',
+    reject:'✕ Override to REJECT recorded. Justification logged. Audit trail updated.'
+  };
+  const t=document.getElementById('toast');t.textContent=msgs[d];t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+</script>
+</body>
+</html>

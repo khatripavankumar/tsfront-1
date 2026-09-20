@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AssessAI 2.0 — Candidate Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#6d28d9;--brand2:#7c3aed;--brand-light:#ede9fe;--brand-border:#c4b5fd;
+  --bg:#f4f4f5;--white:#fff;--border:#e4e4e7;--border2:#d4d4d8;
+  --text:#09090b;--text2:#3f3f46;--text3:#71717a;--text4:#a1a1aa;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Top bar */
+.topbar{background:var(--brand);padding:0 28px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:8px}
+.tb-logo-icon{width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:800}
+.tb-logo-text{font-size:15px;font-weight:800;color:white}
+.tb-divider{width:1px;height:20px;background:rgba(255,255,255,0.25)}
+.tb-title{font-size:13px;font-weight:500;color:rgba(255,255,255,0.8)}
+.tb-spacer{flex:1}
+.tb-autosave{font-size:11px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:5px}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4)}
+.tb-dot.saved{background:#86efac;animation:none}
+.tb-timer{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.2);border-radius:7px;padding:5px 14px;color:white;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.tb-timer.warn{background:rgba(220,38,38,0.5);border-color:rgba(220,38,38,0.6)}
+
+/* Progress bar */
+.prog-track{height:3px;background:rgba(255,255,255,0.2)}
+.prog-fill{height:100%;background:rgba(255,255,255,0.7);transition:width 0.4s ease}
+
+/* Main layout */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-top{padding:16px;border-bottom:1px solid var(--border)}
+.sb-heading{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+.sb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px}
+.sb-btn{height:40px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s;position:relative}
+.sb-btn:hover{border-color:var(--brand-border);color:var(--brand)}
+.sb-btn.active{background:var(--brand);color:white;border-color:var(--brand);box-shadow:0 2px 8px rgba(109,40,217,0.3)}
+.sb-btn.answered{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.sb-btn.answered.active{background:var(--green);color:white;border-color:var(--green)}
+.sb-legend{display:flex;flex-direction:column;gap:5px}
+.sb-leg-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3)}
+.sb-leg-dot{width:10px;height:10px;border-radius:3px;border:1px solid}
+.sld-blue{background:var(--blue-bg);border-color:var(--blue-border)}
+.sld-green{background:var(--green-bg);border-color:var(--green-border)}
+.sld-purple{background:var(--purple-bg);border-color:var(--brand-border)}
+.sld-amber{background:var(--amber-bg);border-color:var(--amber-border)}
+.sb-progress{padding:14px 16px;border-top:1px solid var(--border);margin-top:auto}
+.sb-progress-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text4);margin-bottom:6px;display:flex;justify-content:space-between}
+.sb-progress-bar{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.sb-progress-fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:3px;transition:width 0.4s}
+
+/* Content area */
+.content{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
+
+/* Question card */
+.qblock{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.qblock-header{padding:14px 18px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.qbh-num{width:28px;height:28px;border-radius:8px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qbhn-mcq{background:var(--blue-bg);color:var(--blue)}
+.qbhn-code{background:var(--green-bg);color:var(--green)}
+.qbhn-design{background:var(--purple-bg);color:var(--purple)}
+.qbhn-beh{background:var(--amber-bg);color:var(--amber)}
+.qbh-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:0.4px}
+.qbht-mcq{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.qbht-code{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.qbht-design{background:var(--purple-bg);color:var(--purple);border:1px solid var(--brand-border)}
+.qbht-beh{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.qbh-time{margin-left:auto;font-size:11px;color:var(--text4);display:flex;align-items:center;gap:4px;background:var(--border);border-radius:100px;padding:2px 9px}
+.qblock-body{padding:18px}
+.q-question{font-size:15px;font-weight:700;color:var(--text);line-height:1.55;margin-bottom:16px}
+
+/* MCQ */
+.mcq-opts{display:flex;flex-direction:column;gap:7px}
+.mcq-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all 0.12s}
+.mcq-opt:hover{border-color:var(--brand-border);background:var(--brand-light)}
+.mcq-opt.sel{border-color:var(--brand);background:var(--brand-light)}
+.mcq-circle{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all 0.12s;display:flex;align-items:center;justify-content:center}
+.mcq-opt.sel .mcq-circle{border-color:var(--brand);background:var(--brand)}
+.mcq-opt.sel .mcq-circle::after{content:'';width:6px;height:6px;border-radius:50%;background:white}
+.mcq-text{font-size:13px;color:var(--text2)}
+.mcq-opt.sel .mcq-text{color:var(--brand);font-weight:600}
+
+/* Code editor */
+.code-editor{border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+.ce-header{background:#09090b;padding:8px 14px;display:flex;align-items:center;gap:6px}
+.ce-dot{width:11px;height:11px;border-radius:50%}
+.ced1{background:#ff5f57}.ced2{background:#febc2e}.ced3{background:#28c840}
+.ce-file{margin-left:auto;font-size:10px;color:#52525b;font-family:var(--mono)}
+.ce-context{background:#111827;padding:12px 16px;font-family:var(--mono);font-size:11.5px;color:#6b7280;line-height:1.7;border-bottom:1px solid #1f2937;white-space:pre}
+.cc{color:#374151}.cs{color:#7dd3fc}.cf{color:#86efac}.ck{color:#c084fc}.cn{color:#fbbf24}
+.ce-textarea{display:block;width:100%;min-height:160px;background:#111827;border:none;outline:none;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#e5e7eb;line-height:1.8;resize:vertical}
+.ce-status{background:#09090b;padding:5px 14px;display:flex;gap:16px;font-family:var(--mono);font-size:10px;color:#374151}
+
+/* Long answer */
+.long-textarea{width:100%;min-height:140px;background:var(--bg);border:1.5px solid var(--border2);border-radius:9px;padding:13px;font-family:inherit;font-size:13px;color:var(--text);outline:none;resize:vertical;line-height:1.75;transition:border 0.15s}
+.long-textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-light)}
+
+/* Nav controls */
+.nav-controls{display:flex;justify-content:flex-end;gap:9px;margin-top:14px}
+.nav-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border2);background:var(--white);font-family:inherit;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.12s}
+.nav-btn:hover{border-color:var(--brand-border);color:var(--brand)}
+.nav-btn.primary{background:var(--brand);color:white;border-color:var(--brand)}
+.nav-btn.primary:hover{background:var(--brand2);box-shadow:0 3px 12px rgba(109,40,217,0.35)}
+.coding-next-btn{display:inline-flex!important;visibility:visible!important;opacity:1!important;min-width:190px;justify-content:center;position:relative;z-index:2}
+
+/* Bottom bar */
+.bottom-bar{background:var(--white);border-top:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:16px;flex-shrink:0;box-shadow:0 -2px 8px rgba(0,0,0,.04)}
+.bb-count{font-size:13px;color:var(--text3)}
+.bb-count strong{color:var(--green);font-weight:700}
+.bb-spacer{flex:1}
+.bb-submit{background:linear-gradient(135deg,var(--green),#059669);color:white;border:none;border-radius:9px;padding:11px 26px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.15s;box-shadow:0 2px 10px rgba(22,163,74,0.3)}
+.bb-submit:hover{box-shadow:0 4px 18px rgba(22,163,74,0.4);transform:translateY(-1px)}
+
+/* Scoring overlay */
+.overlay{position:fixed;inset:0;background:rgba(9,9,11,0.6);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.ov-card{background:var(--white);border-radius:20px;padding:40px;width:420px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.25)}
+.ov-icon{font-size:52px;margin-bottom:16px;display:block}
+.ov-title{font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px}
+.ov-sub{font-size:13px;color:var(--text3);margin-bottom:24px;line-height:1.65}
+.ov-bar-wrap{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.ov-bar{height:100%;background:linear-gradient(90deg,var(--brand),#a855f7);border-radius:3px;width:0;transition:width 0.5s ease}
+.ov-pct{font-size:11px;color:var(--text4);margin-bottom:20px}
+.ov-steps{text-align:left;display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.ov-step{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;transition:all 0.2s}
+.ov-step.done{color:var(--green);background:var(--green-bg)}
+.ov-step.active{color:var(--brand);background:var(--brand-light)}
+.ov-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.15s;display:none}
+.ov-cta:hover{opacity:0.9}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="tb-logo">
+    <div class="tb-logo-icon">A</div>
+    <div class="tb-logo-text">AssessAI 2.0</div>
+  </div>
+  <div class="tb-divider"></div>
+  <div class="tb-title">Senior React Developer Assessment · Alex Johnson</div>
+  <div class="tb-spacer"></div>
+  <div class="tb-autosave"><div class="tb-dot" id="tbDot"></div><span id="tbSave">Auto-saved</span></div>
+  <div class="tb-timer" id="timer">⏱ <span id="timerVal">45:00</span></div>
+</div>
+<div class="prog-track"><div class="prog-fill" id="topProg" style="width:11%"></div></div>
+
+<div class="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-top">
+      <div class="sb-heading">Questions</div>
+      <div class="sb-grid" id="sbGrid">
+        <button class="sb-btn active" id="sb1" onclick="go(1)">1</button>
+        <button class="sb-btn" id="sb2" onclick="go(2)">2</button>
+        <button class="sb-btn" id="sb3" onclick="go(3)">3</button>
+        <button class="sb-btn" id="sb4" onclick="go(4)">4</button>
+        <button class="sb-btn" id="sb5" onclick="go(5)">5</button>
+        <button class="sb-btn" id="sb6" onclick="go(6)">6</button>
+        <button class="sb-btn" id="sb7" onclick="go(7)">7</button>
+        <button class="sb-btn" id="sb8" onclick="go(8)">8</button>
+        <button class="sb-btn" id="sb9" onclick="go(9)">9</button>
+      </div>
+      <div class="sb-legend">
+        <div class="sb-leg-item"><div class="sb-leg-dot sld-blue"></div>MCQ (Q1–Q5)</div>
+        <div class="sb-leg-item"><div class="sb-leg-dot sld-green"></div>Coding (Q6–Q7)</div>
+        <div class="sb-leg-item"><div class="sb-leg-dot sld-purple"></div>Design (Q8)</div>
+        <div class="sb-leg-item"><div class="sb-leg-dot sld-amber"></div>Behavioral (Q9)</div>
+      </div>
+    </div>
+    <div class="sb-progress" style="margin-top:auto;padding:16px">
+      <div class="sb-progress-label">
+        <span>Progress</span>
+        <span id="answeredLabel">0/9</span>
+      </div>
+      <div class="sb-progress-bar"><div class="sb-progress-fill" id="sbProgressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Q1 -->
+    <div class="qblock" id="q1">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-mcq">1</div>
+        <span class="qbh-tag qbht-mcq">Multiple Choice</span>
+        <div class="qbh-time">⏱ 2 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">In React, which hook would you use to run a side effect only when a specific value changes — not on every render?</div>
+        <div class="mcq-opts" id="mcq1">
+          <div class="mcq-opt" onclick="pick(1,'a',this)"><div class="mcq-circle"></div><span class="mcq-text">useState</span></div>
+          <div class="mcq-opt" onclick="pick(1,'b',this)"><div class="mcq-circle"></div><span class="mcq-text">useRef</span></div>
+          <div class="mcq-opt" onclick="pick(1,'c',this)"><div class="mcq-circle"></div><span class="mcq-text">useEffect with dependency array</span></div>
+          <div class="mcq-opt" onclick="pick(1,'d',this)"><div class="mcq-circle"></div><span class="mcq-text">useMemo</span></div>
+        </div>
+        <div class="nav-controls"><button class="nav-btn primary" onclick="go(2)">Next →</button></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qblock" id="q2" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-mcq">2</div>
+        <span class="qbh-tag qbht-mcq">Multiple Choice</span>
+        <div class="qbh-time">⏱ 3 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">What is the primary difference between useMemo and useCallback in React?</div>
+        <div class="mcq-opts" id="mcq2">
+          <div class="mcq-opt" onclick="pick(2,'a',this)"><div class="mcq-circle"></div><span class="mcq-text">useMemo memoizes a value; useCallback memoizes a function reference</span></div>
+          <div class="mcq-opt" onclick="pick(2,'b',this)"><div class="mcq-circle"></div><span class="mcq-text">They are identical — just different names</span></div>
+          <div class="mcq-opt" onclick="pick(2,'c',this)"><div class="mcq-circle"></div><span class="mcq-text">useCallback memoizes a value; useMemo memoizes a function</span></div>
+          <div class="mcq-opt" onclick="pick(2,'d',this)"><div class="mcq-circle"></div><span class="mcq-text">useMemo is for class components only</span></div>
+        </div>
+        <div class="nav-controls"><button class="nav-btn" onclick="go(1)">← Prev</button><button class="nav-btn primary" onclick="go(3)">Next →</button></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qblock" id="q3" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-mcq">3</div>
+        <span class="qbh-tag qbht-mcq">Multiple Choice</span>
+        <div class="qbh-time">⏱ 3 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">In TypeScript, what is the key difference between <code style="background:#f4f4f5;border-radius:4px;padding:1px 5px;font-family:monospace">interface</code> and <code style="background:#f4f4f5;border-radius:4px;padding:1px 5px;font-family:monospace">type</code>?</div>
+        <div class="mcq-opts" id="mcq3">
+          <div class="mcq-opt" onclick="pick(3,'a',this)"><div class="mcq-circle"></div><span class="mcq-text">No difference at all</span></div>
+          <div class="mcq-opt" onclick="pick(3,'b',this)"><div class="mcq-circle"></div><span class="mcq-text">interface supports declaration merging; type supports unions, intersections, and complex type expressions</span></div>
+          <div class="mcq-opt" onclick="pick(3,'c',this)"><div class="mcq-circle"></div><span class="mcq-text">type is deprecated in TypeScript 5+</span></div>
+          <div class="mcq-opt" onclick="pick(3,'d',this)"><div class="mcq-circle"></div><span class="mcq-text">interface only works with classes</span></div>
+        </div>
+        <div class="nav-controls"><button class="nav-btn" onclick="go(2)">← Prev</button><button class="nav-btn primary" onclick="go(4)">Next →</button></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qblock" id="q4" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-mcq">4</div>
+        <span class="qbh-tag qbht-mcq">Multiple Choice</span>
+        <div class="qbh-time">⏱ 4 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">What is the most efficient approach to avoid re-fetching already-loaded pages when implementing pagination with a REST API in React?</div>
+        <div class="mcq-opts" id="mcq4">
+          <div class="mcq-opt" onclick="pick(4,'a',this)"><div class="mcq-circle"></div><span class="mcq-text">Always re-fetch all pages on every navigation</span></div>
+          <div class="mcq-opt" onclick="pick(4,'b',this)"><div class="mcq-circle"></div><span class="mcq-text">Use React Query or SWR with a distinct cache key per page</span></div>
+          <div class="mcq-opt" onclick="pick(4,'c',this)"><div class="mcq-circle"></div><span class="mcq-text">Store all data in localStorage</span></div>
+          <div class="mcq-opt" onclick="pick(4,'d',this)"><div class="mcq-circle"></div><span class="mcq-text">Use a global Redux store only</span></div>
+        </div>
+        <div class="nav-controls"><button class="nav-btn" onclick="go(3)">← Prev</button><button class="nav-btn primary" onclick="go(5)">Next →</button></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qblock" id="q5" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-mcq">5</div>
+        <span class="qbh-tag qbht-mcq">Multiple Choice</span>
+        <div class="qbh-time">⏱ 3 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">What is the purpose of React.memo, and when should you NOT use it?</div>
+        <div class="mcq-opts" id="mcq5">
+          <div class="mcq-opt" onclick="pick(5,'a',this)"><div class="mcq-circle"></div><span class="mcq-text">Always beneficial — wrap every component</span></div>
+          <div class="mcq-opt" onclick="pick(5,'b',this)"><div class="mcq-circle"></div><span class="mcq-text">Prevents re-renders if props are reference-equal; avoid when props change frequently or comparison is expensive</span></div>
+          <div class="mcq-opt" onclick="pick(5,'c',this)"><div class="mcq-circle"></div><span class="mcq-text">Only works with class components</span></div>
+          <div class="mcq-opt" onclick="pick(5,'d',this)"><div class="mcq-circle"></div><span class="mcq-text">Replaces useCallback entirely</span></div>
+        </div>
+        <div class="nav-controls"><button class="nav-btn" onclick="go(4)">← Prev</button><button class="nav-btn primary" onclick="go(6)">Next →</button></div>
+      </div>
+    </div>
+
+    <!-- Q6 Coding -->
+    <div class="qblock" id="q6" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-code">6</div>
+        <span class="qbh-tag qbht-code">Coding Challenge</span>
+        <div class="qbh-time">⏱ 20 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">Implement a custom React hook <code style="background:#f0fdf4;border-radius:4px;padding:1px 6px;font-family:monospace;color:#16a34a">useDebounce(value, delay)</code> that returns a debounced version of the given value. The value should only update after the user stops changing it for the specified delay.</div>
+        <div class="code-editor">
+          <div class="ce-header">
+            <div class="ce-dot ced1"></div><div class="ce-dot ced2"></div><div class="ce-dot ced3"></div>
+            <div class="ce-file">useDebounce.ts</div>
+          </div>
+          <pre class="ce-context"><span class="cc">// Context — how this hook will be used:</span>
+<span class="ck">const</span> [searchTerm, setSearchTerm] = <span class="cf">useState</span>(<span class="cs">''</span>);
+<span class="ck">const</span> debouncedSearch = <span class="cf">useDebounce</span>(searchTerm, <span class="cn">500</span>);
+<span class="cf">useEffect</span>(() => { <span class="cf">fetchResults</span>(debouncedSearch); }, [debouncedSearch]);</pre>
+          <textarea class="ce-textarea" id="code6" placeholder="// Write your useDebounce implementation here..." oninput="markDone(6)"></textarea>
+          <div class="ce-status"><span>TypeScript · React</span><span>assessai-v2.0</span></div>
+        </div>
+        <div class="nav-controls"><button type="button" class="nav-btn" onclick="go(5)">← Prev</button><button type="button" class="nav-btn primary coding-next-btn" onclick="go(7)">Next Coding Challenge →</button></div>
+      </div>
+    </div>
+
+    <!-- Q7 Coding -->
+    <div class="qblock" id="q7" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-code">7</div>
+        <span class="qbh-tag qbht-code">Coding Challenge</span>
+        <div class="qbh-time">⏱ 25 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">Implement a TypeScript function <code style="background:#f0fdf4;border-radius:4px;padding:1px 6px;font-family:monospace;color:#16a34a">fetchWithRetry&lt;T&gt;</code> that retries a failed fetch request with exponential backoff. Retry on network errors and HTTP 5xx responses.</div>
+        <div class="code-editor">
+          <div class="ce-header">
+            <div class="ce-dot ced1"></div><div class="ce-dot ced2"></div><div class="ce-dot ced3"></div>
+            <div class="ce-file">fetchWithRetry.ts</div>
+          </div>
+          <pre class="ce-context"><span class="cc">// Signature:</span>
+<span class="ck">async function</span> <span class="cf">fetchWithRetry</span>&lt;T&gt;(
+  url: <span class="cs">string</span>, options: RequestInit,
+  retries: <span class="cs">number</span> = <span class="cn">3</span>, backoffMs: <span class="cs">number</span> = <span class="cn">500</span>
+): Promise&lt;T&gt;</pre>
+          <textarea class="ce-textarea" id="code7" placeholder="// Write your fetchWithRetry implementation here..." oninput="markDone(7)"></textarea>
+          <div class="ce-status"><span>TypeScript</span><span>assessai-v2.0</span></div>
+        </div>
+        <div class="nav-controls"><button type="button" class="nav-btn" onclick="go(6)">← Prev</button><button type="button" class="nav-btn primary coding-next-btn" onclick="go(8)">Next Question →</button></div>
+      </div>
+    </div>
+
+    <!-- Q8 Design -->
+    <div class="qblock" id="q8" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-design">8</div>
+        <span class="qbh-tag qbht-design">System Design</span>
+        <div class="qbh-time">⏱ 20 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">Design the architecture for a real-time collaborative document editor (like Google Docs) built with React. Focus on: state sync between clients, conflict resolution, offline support, and performance with large documents.</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Include: key components, technologies, conflict resolution strategy, and performance approach</div>
+        <textarea class="long-textarea" placeholder="Describe your system design..." oninput="markDone(8)"></textarea>
+        <div class="nav-controls"><button class="nav-btn" onclick="go(7)">← Prev</button><button class="nav-btn primary" onclick="go(9)">Next →</button></div>
+      </div>
+    </div>
+
+    <!-- Q9 Behavioral -->
+    <div class="qblock" id="q9" style="display:none">
+      <div class="qblock-header">
+        <div class="qbh-num qbhn-beh">9</div>
+        <span class="qbh-tag qbht-beh">Behavioral</span>
+        <div class="qbh-time">⏱ 10 min</div>
+      </div>
+      <div class="qblock-body">
+        <div class="q-question">Describe a time you discovered a significant performance issue in a React application in production. How did you identify it, what was the root cause, how did you fix it, and what was the measurable improvement?</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Tip: Use the STAR format — Situation, Task, Action, Result</div>
+        <textarea class="long-textarea" placeholder="Describe your experience here..." oninput="markDone(9)"></textarea>
+        <div class="nav-controls"><button class="nav-btn" onclick="go(8)">← Prev</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Bottom bar -->
+<div class="bottom-bar">
+  <div class="bb-count">Answered: <strong id="answeredCount">0</strong> / 9</div>
+  <div class="bb-spacer"></div>
+  <button class="bb-submit" onclick="submitAss()">✓ Submit Assessment</button>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay">
+  <div class="ov-card">
+    <span class="ov-icon" id="ovIcon">🧠</span>
+    <div class="ov-title" id="ovTitle">Submitting...</div>
+    <div class="ov-sub" id="ovSub">AssessAI is evaluating your answers</div>
+    <div class="ov-bar-wrap"><div class="ov-bar" id="ovBar"></div></div>
+    <div class="ov-pct" id="ovPct">0% complete</div>
+    <div class="ov-steps" id="ovSteps">
+      <div class="ov-step" id="os1">⬜ Uploading responses...</div>
+      <div class="ov-step" id="os2">⬜ Evaluating conceptual knowledge...</div>
+      <div class="ov-step" id="os3">⬜ Analyzing code submissions...</div>
+      <div class="ov-step" id="os4">⬜ Scoring design & behavioral...</div>
+      <div class="ov-step" id="os5">⬜ Generating final report...</div>
+    </div>
+    <a class="ov-cta" id="ovCta" href="03_evaluator.html">View AI Evaluation Results →</a>
+  </div>
+</div>
+
+<script>
+let cur=1;
+const done=new Set();
+
+function go(n){
+  document.getElementById(`q${cur}`).style.display='none';
+  document.getElementById(`sb${cur}`).classList.remove('active');
+  cur=n;
+  document.getElementById(`q${n}`).style.display='block';
+  document.getElementById(`sb${n}`).classList.add('active');
+  document.getElementById('topProg').style.width=(n/9*100)+'%';
+  window.scrollTo(0,0);
+}
+
+function pick(q,opt,el){
+  document.querySelectorAll(`#mcq${q} .mcq-opt`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');markDone(q);
+}
+function markDone(n){
+  done.add(n);
+  const sb=document.getElementById(`sb${n}`);
+  sb.classList.add('answered');
+  document.getElementById('answeredCount').textContent=done.size;
+  document.getElementById('answeredLabel').textContent=`${done.size}/9`;
+  document.getElementById('sbProgressFill').style.width=(done.size/9*100)+'%';
+}
+
+// Timer
+let secs=2700;
+const tvEl=document.getElementById('timerVal');
+const tWrap=document.getElementById('timer');
+setInterval(()=>{if(secs<=0)return;secs--;const m=Math.floor(secs/60),s=secs%60;tvEl.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(secs<300)tWrap.classList.add('warn')},1000);
+
+// Auto-save
+let saveT;
+['code6','code7'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('input',()=>{
+    document.getElementById('tbSave').textContent='Saving...';
+    document.getElementById('tbDot').classList.remove('saved');
+    clearTimeout(saveT);
+    saveT=setTimeout(()=>{document.getElementById('tbSave').textContent='Saved';document.getElementById('tbDot').classList.add('saved')},700);
+  });
+});
+
+function submitAss(){
+  document.getElementById('overlay').classList.add('open');
+  const steps=[
+    {id:'os1',label:'✅ Responses uploaded',pct:15,t:700},
+    {id:'os2',label:'✅ Conceptual answers evaluated (5/5)',pct:40,t:1700},
+    {id:'os3',label:'✅ Code submissions analyzed (2/2)',pct:65,t:2900},
+    {id:'os4',label:'✅ Design & behavioral scored',pct:85,t:3900},
+    {id:'os5',label:'✅ Report ready — Score: 78/100',pct:100,t:5000}
+  ];
+  steps.forEach((s,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(s.id);
+      el.classList.add('active');
+      el.textContent='🔵 '+el.textContent.replace('⬜ ','');
+      document.getElementById('ovBar').style.width=s.pct+'%';
+      document.getElementById('ovPct').textContent=s.pct+'% complete';
+    },s.t-300);
+    setTimeout(()=>{
+      const el=document.getElementById(s.id);
+      el.textContent=s.label;el.classList.remove('active');el.classList.add('done');
+    },s.t);
+  });
+  setTimeout(()=>{
+    document.getElementById('ovIcon').textContent='🎉';
+    document.getElementById('ovTitle').textContent='Assessment Complete!';
+    document.getElementById('ovSub').textContent='AI evaluation done. Overall score: 78 / 100';
+    document.getElementById('ovCta').style.display='flex';
+  },5400);
+}
+</script>
+</body>
+</html>

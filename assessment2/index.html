@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AssessAI 2.0 — AI Technical Assessment Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#6d28d9;--brand2:#7c3aed;--brand-light:#ede9fe;--brand-border:#c4b5fd;
+  --bg:#fafafa;--white:#ffffff;--surface:#f5f3ff;
+  --border:#e4e4e7;--border2:#d4d4d8;
+  --text:#09090b;--text2:#3f3f46;--text3:#71717a;--text4:#a1a1aa;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+  --shadow:0 1px 8px rgba(0,0,0,.08),0 4px 24px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+  --radius:12px;--radius-sm:8px;--radius-lg:20px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;min-height:100vh}
+
+/* ─── Nav ─── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(250,250,250,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;gap:16px}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:white;font-size:15px;font-weight:800;box-shadow:0 2px 8px rgba(109,40,217,0.35)}
+.nav-logo-text{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
+.nav-logo-v{font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-light);border-radius:4px;padding:1px 6px;margin-left:1px}
+.nav-divider{width:1px;height:24px;background:var(--border)}
+.nav-links{display:flex;gap:2px}
+.nav-link{padding:6px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;text-decoration:none;transition:all 0.15s}
+.nav-link:hover{background:var(--border);color:var(--text2)}
+.nav-link.active{background:var(--brand-light);color:var(--brand);font-weight:600}
+.nav-spacer{flex:1}
+.nav-cta{background:var(--brand);color:white;border-radius:var(--radius-sm);padding:8px 18px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.15s;box-shadow:0 2px 8px rgba(109,40,217,0.3)}
+.nav-cta:hover{background:var(--brand2);box-shadow:0 4px 16px rgba(109,40,217,0.4);transform:translateY(-1px)}
+
+/* ─── Hero ─── */
+.hero{padding:72px 40px 56px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:48px;align-items:center}
+.hero-content{}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);border:1px solid var(--brand-border);color:var(--brand);border-radius:100px;padding:4px 12px 4px 8px;font-size:12px;font-weight:600;margin-bottom:20px}
+.hero-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-title{font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:16px;color:var(--text)}
+.hero-title em{font-style:normal;background:linear-gradient(135deg,var(--brand),#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:17px;color:var(--text3);line-height:1.7;max-width:480px;margin-bottom:32px;font-weight:400}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.hero-btn-primary{background:var(--brand);color:white;border-radius:var(--radius-sm);padding:12px 24px;font-family:inherit;font-size:14px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px;transition:all 0.15s;box-shadow:0 2px 12px rgba(109,40,217,0.35)}
+.hero-btn-primary:hover{background:var(--brand2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(109,40,217,0.4)}
+.hero-btn-secondary{background:var(--white);color:var(--text2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 24px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px;transition:all 0.15s}
+.hero-btn-secondary:hover{border-color:var(--brand-border);color:var(--brand);background:var(--brand-light)}
+
+/* ─── Hero Visual (flow diagram) ─── */
+.hero-visual{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-lg)}
+.hv-title{font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.hv-steps{display:flex;flex-direction:column;gap:3px}
+.hv-step{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);transition:all 0.15s;cursor:default}
+.hv-step.highlight{background:var(--brand-light);border-color:var(--brand-border)}
+.hv-step-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hv-step.s1 .hv-step-icon{background:#ede9fe}.hv-step.s2 .hv-step-icon{background:#ecfdf5}.hv-step.s3 .hv-step-icon{background:#fef3c7}.hv-step.s4 .hv-step-icon{background:#eff6ff}
+.hv-step-info .hv-step-name{font-size:13px;font-weight:600;color:var(--text2)}
+.hv-step-info .hv-step-sub{font-size:11px;color:var(--text4);margin-top:1px}
+.hv-step-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px}
+.hv-connector{display:flex;align-items:center;padding-left:26px;height:12px}
+.hv-connector-line{width:1px;height:12px;background:var(--border)}
+
+/* ─── Stats ─── */
+.stats-row{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 40px;display:flex;justify-content:center;gap:0}
+.stat-item{flex:1;max-width:220px;text-align:center;padding:0 24px;border-right:1px solid var(--border)}
+.stat-item:last-child{border-right:none}
+.stat-val{font-size:32px;font-weight:800;color:var(--brand);letter-spacing:-1px}
+.stat-label{font-size:12px;color:var(--text3);margin-top:3px;font-weight:500}
+
+/* ─── Demo Cards ─── */
+.demos-section{padding:56px 40px;max-width:1100px;margin:0 auto}
+.demos-header{text-align:center;margin-bottom:40px}
+.demos-header h2{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.demos-header p{font-size:15px;color:var(--text3)}
+.demos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+
+.demo-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all 0.2s;text-decoration:none;display:block}
+.demo-card:hover{border-color:var(--brand-border);box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.dc-stripe{height:4px}
+.dc1 .dc-stripe{background:linear-gradient(90deg,#6d28d9,#a855f7,#c084fc)}
+.dc2 .dc-stripe{background:linear-gradient(90deg,#0891b2,#06b6d4,#67e8f9)}
+.dc3 .dc-stripe{background:linear-gradient(90deg,#16a34a,#22c55e,#86efac)}
+.dc4 .dc-stripe{background:linear-gradient(90deg,#d97706,#f59e0b,#fcd34d)}
+.dc-body{padding:24px}
+.dc-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.dc-icon-wrap{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.dc1 .dc-icon-wrap{background:#f5f3ff}.dc2 .dc-icon-wrap{background:#ecfeff}.dc3 .dc-icon-wrap{background:#f0fdf4}.dc4 .dc-icon-wrap{background:#fffbeb}
+.dc-meta{flex:1}
+.dc-step{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.dc-title{font-size:17px;font-weight:700;color:var(--text);line-height:1.2}
+.dc-for{font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;display:inline-block;margin-top:5px}
+.dc1 .dc-for{background:#f3f7ff;color:var(--brand)}.dc2 .dc-for{background:#ecfeff;color:#0e7490}.dc3 .dc-for{background:#f0fdf4;color:var(--green)}.dc4 .dc-for{background:#fffbeb;color:var(--amber)}
+.dc-desc{font-size:13px;color:var(--text3);line-height:1.65;margin-bottom:16px}
+.dc-features{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px}
+.dc-feat{background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:3px 10px;font-size:11px;color:var(--text3);font-weight:500}
+.dc-btn{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;width:100%}
+.dc1 .dc-btn{background:var(--brand-light);color:var(--brand)}.dc1 .dc-btn:hover{background:var(--brand);color:white}
+.dc2 .dc-btn{background:#ecfeff;color:#0e7490}.dc2 .dc-btn:hover{background:#0e7490;color:white}
+.dc3 .dc-btn{background:var(--green-bg);color:var(--green)}.dc3 .dc-btn:hover{background:var(--green);color:white}
+.dc4 .dc-btn{background:var(--amber-bg);color:var(--amber)}.dc4 .dc-btn:hover{background:var(--amber);color:white}
+
+/* ─── How it works ─── */
+.how-section{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:56px 40px}
+.how-inner{max-width:1100px;margin:0 auto}
+.how-inner h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:-0.5px}
+.how-inner .how-sub{font-size:15px;color:var(--text3);text-align:center;margin-bottom:40px}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.how-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.how-card-num{width:36px;height:36px;border-radius:10px;background:var(--brand-light);color:var(--brand);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.how-card-title{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.how-card-desc{font-size:12px;color:var(--text3);line-height:1.65}
+.how-card .ai-tag{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,var(--brand),#a855f7);color:white;border-radius:100px;padding:1px 8px;font-size:10px;font-weight:600;margin-top:8px}
+
+/* ─── Trust bar ─── */
+.trust-bar{padding:32px 40px;display:flex;align-items:center;justify-content:center;gap:48px;max-width:1100px;margin:0 auto}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);font-weight:500}
+.trust-icon{font-size:18px}
+
+/* ─── Footer ─── */
+footer{border-top:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;gap:12px;background:var(--white)}
+.footer-logo{font-size:14px;font-weight:700;color:var(--text2)}
+.footer-spacer{flex:1}
+.footer-text{font-size:12px;color:var(--text4)}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">A</div>
+    <div class="nav-logo-text">AssessAI</div>
+    <div class="nav-logo-v">2.0</div>
+  </a>
+  <div class="nav-divider"></div>
+  <div class="nav-links">
+    <a class="nav-link active" href="index.html">Overview</a>
+    <a class="nav-link" href="01_generator.html">Generator</a>
+    <a class="nav-link" href="02_candidate.html">Candidate</a>
+    <a class="nav-link" href="03_evaluator.html">Evaluator</a>
+    <a class="nav-link" href="04_report.html">Report</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <a class="nav-cta" href="01_generator.html">Start Demo →</a>
+</nav>
+
+<!-- Hero -->
+<div style="max-width:1100px;margin:0 auto;padding:0 40px">
+  <div class="hero" style="padding:72px 0 56px">
+    <div class="hero-content">
+      <div class="hero-pill"><div class="hero-pill-dot"></div>assessai-v2.0 · Now with per-question AI reasoning</div>
+      <h1 class="hero-title">Technical hiring,<br><em>powered by AI.</em></h1>
+      <p class="hero-sub">Generate tailored technical assessments in seconds. Let AI evaluate every answer with detailed reasoning, scoring, and a hire recommendation.</p>
+      <div class="hero-actions">
+        <a class="hero-btn-primary" href="01_generator.html">⚡ Generate an Assessment</a>
+        <a class="hero-btn-secondary" href="03_evaluator.html">View AI Evaluation →</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hv-title">Assessment Flow</div>
+      <div class="hv-steps">
+        <div class="hv-step s1 highlight">
+          <div class="hv-step-icon">🎯</div>
+          <div class="hv-step-info">
+            <div class="hv-step-name">Define Role & Stack</div>
+            <div class="hv-step-sub">Senior React Developer · React, TypeScript</div>
+          </div>
+          <span class="hv-step-badge" style="background:#ede9fe;color:#6d28d9">Done</span>
+        </div>
+        <div class="hv-connector"><div class="hv-connector-line"></div></div>
+        <div class="hv-step s2 highlight">
+          <div class="hv-step-icon">⚡</div>
+          <div class="hv-step-info">
+            <div class="hv-step-name">AI Generates Assessment</div>
+            <div class="hv-step-sub">9 questions · MCQ, Code, Design</div>
+          </div>
+          <span class="hv-step-badge" style="background:#ecfdf5;color:#16a34a">Done</span>
+        </div>
+        <div class="hv-connector"><div class="hv-connector-line"></div></div>
+        <div class="hv-step s3">
+          <div class="hv-step-icon">✍️</div>
+          <div class="hv-step-info">
+            <div class="hv-step-name">Candidate Takes Assessment</div>
+            <div class="hv-step-sub">Timed · Code editor · Auto-save</div>
+          </div>
+          <span class="hv-step-badge" style="background:#fef3c7;color:#d97706">Active</span>
+        </div>
+        <div class="hv-connector"><div class="hv-connector-line"></div></div>
+        <div class="hv-step s4">
+          <div class="hv-step-icon">📊</div>
+          <div class="hv-step-info">
+            <div class="hv-step-name">AI Evaluates & Reports</div>
+            <div class="hv-step-sub">78/100 · ADVANCE recommended</div>
+          </div>
+          <span class="hv-step-badge" style="background:#e0f2fe;color:#0369a1">Pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-item"><div class="stat-val">4</div><div class="stat-label">Live Interactive Demos</div></div>
+  <div class="stat-item"><div class="stat-val">9</div><div class="stat-label">AI-Generated Questions</div></div>
+  <div class="stat-item"><div class="stat-val">78/100</div><div class="stat-label">Sample AI Score</div></div>
+  <div class="stat-item"><div class="stat-val">82%</div><div class="stat-label">Hire Confidence</div></div>
+</div>
+
+<!-- Demo Cards -->
+<div class="demos-section">
+  <div class="demos-header">
+    <h2>4 Demos. One Complete Flow.</h2>
+    <p>Each demo shows a different screen in the AI-powered hiring pipeline</p>
+  </div>
+  <div class="demos-grid">
+
+    <a class="demo-card dc1" href="01_generator.html">
+      <div class="dc-stripe"></div>
+      <div class="dc-body">
+        <div class="dc-header">
+          <div class="dc-icon-wrap">⚡</div>
+          <div class="dc-meta">
+            <div class="dc-step">Demo 01 · HR / Hiring Manager</div>
+            <div class="dc-title">Assessment Generator</div>
+            <span class="dc-for">AI Prompt Builder</span>
+          </div>
+        </div>
+        <p class="dc-desc">Pick a role, select your tech stack, choose difficulty. Watch AssessAI construct an AI prompt in real-time and stream 9 tailored questions — MCQs, coding challenges, system design, and behavioral.</p>
+        <div class="dc-features">
+          <span class="dc-feat">Live AI Prompt</span><span class="dc-feat">Streaming Output</span><span class="dc-feat">9 Questions</span><span class="dc-feat">Expected Answers</span>
+        </div>
+        <button class="dc-btn">Open Demo 01 <span>→</span></button>
+      </div>
+    </a>
+
+    <a class="demo-card dc2" href="02_candidate.html">
+      <div class="dc-stripe"></div>
+      <div class="dc-body">
+        <div class="dc-header">
+          <div class="dc-icon-wrap">✍️</div>
+          <div class="dc-meta">
+            <div class="dc-step">Demo 02 · Candidate</div>
+            <div class="dc-title">Candidate Assessment Portal</div>
+            <span class="dc-for">Timed Assessment UX</span>
+          </div>
+        </div>
+        <p class="dc-desc">A polished candidate-facing portal. Live countdown timer, question navigator sidebar, inline code editor with syntax highlighting context, MCQ radio selection, and a smooth AI scoring animation on submit.</p>
+        <div class="dc-features">
+          <span class="dc-feat">Live Timer</span><span class="dc-feat">Code Editor</span><span class="dc-feat">Q Navigator</span><span class="dc-feat">Auto-Save</span>
+        </div>
+        <button class="dc-btn">Open Demo 02 <span>→</span></button>
+      </div>
+    </a>
+
+    <a class="demo-card dc3" href="03_evaluator.html">
+      <div class="dc-stripe"></div>
+      <div class="dc-body">
+        <div class="dc-header">
+          <div class="dc-icon-wrap">🧠</div>
+          <div class="dc-meta">
+            <div class="dc-step">Demo 03 · Recruiter</div>
+            <div class="dc-title">AI Evaluation Dashboard</div>
+            <span class="dc-for">Per-Question AI Scoring</span>
+          </div>
+        </div>
+        <p class="dc-desc">Every answer gets an AI score (0–10) with a full reasoning paragraph, evidence from the candidate's response, identified gaps, and a suggested interview follow-up question. Recruiter can override any score.</p>
+        <div class="dc-features">
+          <span class="dc-feat">AI Reasoning</span><span class="dc-feat">Score Override</span><span class="dc-feat">Skill Bars</span><span class="dc-feat">Follow-up Qs</span>
+        </div>
+        <button class="dc-btn">Open Demo 03 <span>→</span></button>
+      </div>
+    </a>
+
+    <a class="demo-card dc4" href="04_report.html">
+      <div class="dc-stripe"></div>
+      <div class="dc-body">
+        <div class="dc-header">
+          <div class="dc-icon-wrap">📋</div>
+          <div class="dc-meta">
+            <div class="dc-step">Demo 04 · Hiring Committee</div>
+            <div class="dc-title">Assessment Report</div>
+            <span class="dc-for">Print-Ready AI Report</span>
+          </div>
+        </div>
+        <p class="dc-desc">A structured hiring report with AI executive summary, score breakdown table, strengths, knowledge gaps with evidence, recommended follow-up interview questions, final hire recommendation, and full audit trail.</p>
+        <div class="dc-features">
+          <span class="dc-feat">AI Summary</span><span class="dc-feat">Hire Rec.</span><span class="dc-feat">Printable</span><span class="dc-feat">Audit Trail</span>
+        </div>
+        <button class="dc-btn">Open Demo 04 <span>→</span></button>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="how-section">
+  <div class="how-inner">
+    <h2>How AssessAI Works</h2>
+    <p class="how-sub">Four AI-powered steps from job role to hiring decision</p>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-card-num">1</div>
+        <div class="how-card-title">Define the Assessment</div>
+        <p class="how-card-desc">Enter a job title, select required technologies, choose experience level and question count. AssessAI constructs a structured prompt visible to you.</p>
+        <div class="ai-tag">🤖 AI Prompt</div>
+      </div>
+      <div class="how-card">
+        <div class="how-card-num">2</div>
+        <div class="how-card-title">AI Generates Questions</div>
+        <p class="how-card-desc">The model returns MCQs with 4 options, coding challenges with context, a system design question, and a behavioral question — all with expected answers and difficulty ratings.</p>
+        <div class="ai-tag">🤖 AI Output</div>
+      </div>
+      <div class="how-card">
+        <div class="how-card-num">3</div>
+        <div class="how-card-title">Candidate Takes It</div>
+        <p class="how-card-desc">Candidate receives a timed link. They work through questions in a clean portal with a code editor, live timer, progress navigator, and auto-save every keystroke.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-card-num">4</div>
+        <div class="how-card-title">AI Evaluates & Reports</div>
+        <p class="how-card-desc">Every answer is scored 0–10 with evidence-based reasoning. A final report includes hire recommendation, confidence score, skill gaps, and suggested interview questions.</p>
+        <div class="ai-tag">🤖 AI Scoring</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trust bar -->
+<div class="trust-bar">
+  <div class="trust-item"><span class="trust-icon">🔒</span>Evidence-based scoring only</div>
+  <div class="trust-item"><span class="trust-icon">🎯</span>No demographic inference</div>
+  <div class="trust-item"><span class="trust-icon">👤</span>Human override on every score</div>
+  <div class="trust-item"><span class="trust-icon">📋</span>Full audit trail</div>
+  <div class="trust-item"><span class="trust-icon">🖨</span>Print-ready reports</div>
+</div>
+
+<footer>
+  <div class="footer-logo">AssessAI 2.0</div>
+  <div class="footer-spacer"></div>
+  <div class="footer-text">assessai-v2.0 · AI-powered technical hiring assessment · Built to demonstrate AI product development</div>
+</footer>
+
+</body>
+</html>

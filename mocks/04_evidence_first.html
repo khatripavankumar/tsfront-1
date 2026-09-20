@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — Evidence-First Split Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --warm-white:#fffef9;--cool-white:#f7f9fc;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#1e293b;--text2:#334155;--text3:#64748b;--text4:#94a3b8;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#86efac;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --amber:#d97706;--amber-bg:#fffbeb;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --highlight:#fef08a;--highlight-active:#fde047;
+  --shadow:0 1px 4px rgba(0,0,0,.08);
+}
+body{background:var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Title Bar */
+.title-bar{background:#1e293b;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.title-bar-text{color:white;font-size:13px;font-weight:600}
+.title-bar-badge{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);border-radius:20px;padding:2px 12px;font-size:11px}
+.title-bar-spacer{flex:1}
+.title-bar-model{background:rgba(37,99,235,0.4);color:#93c5fd;border:1px solid rgba(59,130,246,0.4);border-radius:6px;padding:2px 10px;font-size:11px}
+
+/* Split Layout */
+.split{display:flex;flex:1;overflow:hidden;gap:2px}
+.panel-left{width:50%;background:var(--warm-white);overflow-y:auto;display:flex;flex-direction:column}
+.panel-right{width:50%;background:var(--cool-white);overflow-y:auto;display:flex;flex-direction:column}
+.panel-header{padding:12px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.panel-left .panel-header{background:#fffef5;border-bottom:2px solid #fde68a}
+.panel-right .panel-header{background:#f0f7ff;border-bottom:2px solid #bfdbfe}
+.panel-header-title{font-weight:700;font-size:14px}
+.panel-header .phbadge{border-radius:6px;padding:2px 10px;font-size:11px;font-weight:600}
+.panel-left .phbadge{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.panel-right .phbadge{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+
+/* Left Panel - Resume */
+.resume-doc{margin:16px;background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:24px;flex:1}
+.resume-header{margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid #334155}
+.resume-name{font-size:20px;font-weight:800;color:#1e293b;letter-spacing:-0.5px}
+.resume-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.resume-section{margin-top:16px}
+.resume-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.resume-text{font-size:12px;line-height:1.9;color:var(--text2)}
+
+/* Highlight */
+.highlight{background:var(--highlight);border-radius:2px;cursor:pointer;transition:background 0.2s;padding:0 1px}
+.highlight:hover,.highlight.active{background:var(--highlight-active);outline:2px solid #eab308}
+.highlight-num{font-size:9px;font-weight:700;color:#854d0e;background:#fde68a;border-radius:3px;padding:0 3px;margin-left:2px;vertical-align:super;border:1px solid #ca8a04}
+
+/* Right Panel - Assessment */
+.right-body{padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+
+.decision-card{background:var(--green-bg);border:1px solid var(--green-border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px}
+.dec-badge{background:var(--green);color:white;border-radius:8px;padding:10px 18px;font-size:16px;font-weight:800;letter-spacing:1px}
+.dec-info .dec-title{font-size:14px;font-weight:700;color:var(--green)}
+.dec-info .dec-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+.conf-card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px}
+.conf-label-text{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.conf-scale{position:relative;height:32px;background:#f1f5f9;border-radius:6px;overflow:visible;margin-bottom:8px}
+.conf-fill{height:100%;background:linear-gradient(90deg,var(--green),#10b981);border-radius:6px;position:relative}
+.conf-marker{position:absolute;top:-6px;height:44px;width:2px;background:var(--blue)}
+.conf-marker-label{position:absolute;top:-18px;left:-16px;font-size:10px;font-weight:600;color:var(--blue);white-space:nowrap}
+.conf-range-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text4)}
+.conf-num-big{font-size:28px;font-weight:800;color:var(--green);line-height:1}
+.conf-uncertainty{font-size:11px;color:var(--text3)}
+
+/* Evidence Items Right */
+.evidence-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.ev-count-badge{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600}
+.ev-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.ev-item:hover,.ev-item.active{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-border)}
+.ev-item-header{padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+.ev-num-badge{width:22px;height:22px;border-radius:6px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.ev-item.active .ev-num-badge{background:var(--blue);color:white}
+.ev-quote-text{font-size:11px;color:var(--text2);font-style:italic;line-height:1.5;flex:1}
+.ev-req-tag{font-size:10px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);border-radius:4px;padding:2px 7px;flex-shrink:0;white-space:nowrap}
+.ev-relevance{padding:0 12px 10px 44px;font-size:11px;color:var(--text3);line-height:1.5;border-top:1px solid var(--border);background:#f8faff;display:none}
+.ev-item.active .ev-relevance{display:block;padding-top:8px}
+
+/* Reason Card */
+.reason-card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px}
+.reason-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.reason-text{font-size:12px;color:var(--text2);line-height:1.7}
+
+/* Override */
+.override-card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px}
+.override-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.override-btns{display:flex;gap:8px}
+.ov-btn{flex:1;padding:10px;border-radius:8px;border:1px solid;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s}
+.ov-accept{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.ov-accept:hover{background:var(--green);color:white}
+.ov-hold{background:var(--amber-bg);color:var(--amber);border-color:#fcd34d}
+.ov-hold:hover{background:var(--amber);color:white}
+.ov-reject{background:var(--red-bg);color:var(--red);border-color:#fca5a5}
+.ov-reject:hover{background:var(--red);color:white}
+
+/* Audit */
+.audit-card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px}
+.audit-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.audit-entry{display:flex;gap:10px;margin-bottom:8px;font-size:11px}
+.audit-entry:last-child{margin-bottom:0}
+.aed{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.aed.done{background:var(--green)}.aed.active{background:var(--blue)}.aed.pending{background:var(--border2)}
+.ae-info .ae-action{color:var(--text2);font-weight:500}
+.ae-info .ae-time{color:var(--text4);font-size:10px;margin-top:1px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#1e293b;color:white;border-radius:10px;padding:12px 18px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:100;transform:translateY(60px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Title Bar -->
+<div class="title-bar">
+  <div class="title-bar-text">Evidence-First Review — Split Panel &nbsp;|&nbsp; Audience: Compliance-Aware Recruiters</div>
+  <div class="title-bar-spacer"></div>
+  <div class="title-bar-badge">Jane Martinez · Senior Python Developer</div>
+  <div class="title-bar-model">txscreen-v2.1.0</div>
+</div>
+
+<div class="split">
+  <!-- LEFT PANEL: Resume with highlights -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <div class="panel-header-title">📄 Source Resume</div>
+      <div class="phbadge">Verbatim Document</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--text4)">6 highlights active</div>
+    </div>
+    <div class="resume-doc">
+      <div class="resume-header">
+        <div class="resume-name">JANE MARTINEZ</div>
+        <div class="resume-sub">Software Engineer · jane.martinez@email.com · Austin, TX</div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Experience</div>
+        <div class="resume-text">
+          • <span class="highlight" data-ev="1" onclick="activateEv(1)">"Lead Python Developer at CloudScale Inc. (2019–2024)"<span class="highlight-num">1</span></span>: Architected and maintained <span class="highlight" data-ev="2" onclick="activateEv(2)">"12 Django-based microservices handling 2M+ daily requests"<span class="highlight-num">2</span></span>. <span class="highlight" data-ev="3" onclick="activateEv(3)">"Designed RESTful APIs consumed by mobile and web clients"<span class="highlight-num">3</span></span>. <span class="highlight" data-ev="4" onclick="activateEv(4)">"Managed PostgreSQL databases with complex query optimization"<span class="highlight-num">4</span></span>.
+          <br><br>
+          • Software Engineer at DataBridge (2017–2019): Built Flask applications for internal tooling. Wrote comprehensive test suites using <span class="highlight" data-ev="5" onclick="activateEv(5)">"pytest achieving 94% code coverage"<span class="highlight-num">5</span></span>. Implemented <span class="highlight" data-ev="6" onclick="activateEv(6)">"CI/CD pipelines with GitHub Actions and Jenkins"<span class="highlight-num">6</span></span>.
+        </div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Skills</div>
+        <div class="resume-text">Python, Django, Flask, PostgreSQL, REST APIs, pytest, Docker, GitHub Actions, Agile/Scrum.</div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Education</div>
+        <div class="resume-text">B.Sc. Computer Science, University of Texas, 2017.</div>
+      </div>
+      <div style="margin-top:20px;padding:10px 12px;background:#fefce8;border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e">
+        💡 <strong>Click any highlighted quote</strong> to jump to the matching evidence on the right panel.
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: AI Assessment -->
+  <div class="panel-right">
+    <div class="panel-header">
+      <div class="panel-header-title">🤖 AI Assessment</div>
+      <div class="phbadge">txscreen-v2.1.0</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--text4)">Sep 3, 2026 · 09:14 UTC</div>
+    </div>
+    <div class="right-body">
+
+      <!-- Decision -->
+      <div class="decision-card">
+        <div class="dec-badge">✓ ACCEPT</div>
+        <div class="dec-info">
+          <div class="dec-title">AI Decision: Accept</div>
+          <div class="dec-sub">All 6 requirements matched with explicit resume evidence</div>
+        </div>
+      </div>
+
+      <!-- Confidence -->
+      <div class="conf-card">
+        <div class="conf-label-text">Confidence Score</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+          <div class="conf-num-big">92%</div>
+          <div class="conf-uncertainty">± 4% uncertainty band</div>
+        </div>
+        <div class="conf-scale">
+          <div class="conf-fill" style="width:92%">
+            <div class="conf-marker" style="left:calc(88% - 1px)">
+              <div class="conf-marker-label">88%</div>
+            </div>
+            <div class="conf-marker" style="left:calc(96% - 1px)">
+              <div class="conf-marker-label">96%</div>
+            </div>
+          </div>
+        </div>
+        <div class="conf-range-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+
+      <!-- Evidence Items -->
+      <div>
+        <div class="evidence-section-title">
+          Evidence Quotes
+          <span class="ev-count-badge">6 / 6 Matched</span>
+        </div>
+
+        <div class="ev-item active" id="ev-1" onclick="activateEv(1)">
+          <div class="ev-item-header">
+            <div class="ev-num-badge">1</div>
+            <div class="ev-quote-text">"Lead Python Developer at CloudScale Inc. (2019–2024)"</div>
+            <div class="ev-req-tag">5+ yrs Python ✓</div>
+          </div>
+          <div class="ev-relevance">5 years of direct Python developer experience as lead engineer. Satisfies the 5+ year experience requirement explicitly.</div>
+        </div>
+
+        <div class="ev-item" id="ev-2" onclick="activateEv(2)">
+          <div class="ev-item-header">
+            <div class="ev-num-badge">2</div>
+            <div class="ev-quote-text">"Architected and maintained 12 Django-based microservices handling 2M+ daily requests"</div>
+            <div class="ev-req-tag">Django/Flask ✓</div>
+          </div>
+          <div class="ev-relevance">Strong Django background at production scale. Exceeds typical requirement signal significantly.</div>
+        </div>
+
+        <div class="ev-item" id="ev-3" onclick="activateEv(3)">
+          <div class="ev-item-header">
+            <div class="ev-num-badge">3</div>
+            <div class="ev-quote-text">"Designed RESTful APIs consumed by mobile and web clients"</div>
+            <div class="ev-req-tag">REST API ✓</div>
+          </div>
+          <div class="ev-relevance">Direct REST API design experience for multi-platform clients. Requirement matched.</div>
+        </div>
+
+        <div class="ev-item" id="ev-4" onclick="activateEv(4)">
+          <div class="ev-item-header">
+            <div class="ev-num-badge">4</div>
+            <div class="ev-quote-text">"Managed PostgreSQL databases with complex query optimization"</div>
+            <div class="ev-req-tag">PostgreSQL ✓</div>
+          </div>
+          <div class="ev-relevance">Explicit PostgreSQL experience with advanced depth (query optimization). Exceeds basic proficiency.</div>
+        </div>
+
+        <div class="ev-item" id="ev-5" onclick="activateEv(5)">
+          <div class="ev-item-header">
+            <div class="ev-num-badge">5</div>
+            <div class="ev-quote-text">"pytest achieving 94% code coverage"</div>
+            <div class="ev-req-tag">pytest ✓</div>
+          </div>
+          <div class="ev-relevance">Direct pytest unit testing with measurable outcome. 94% coverage above 80% industry average.</div>
+        </div>
+
+        <div class="ev-item" id="ev-6" onclick="activateEv(6)">
+          <div class="ev-item-header">
+            <div class="ev-num-badge">6</div>
+            <div class="ev-quote-text">"CI/CD pipelines with GitHub Actions and Jenkins"</div>
+            <div class="ev-req-tag">CI/CD ✓</div>
+          </div>
+          <div class="ev-relevance">CI/CD experience with two tools (GitHub Actions + Jenkins). Requirement met with dual-tool evidence.</div>
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="reason-card">
+        <div class="reason-label">AI Reasoning</div>
+        <div class="reason-text">All 6 stated requirements are explicitly evidenced in the resume. Jane Martinez's 5-year Python leadership, production Django microservices, REST API design, advanced PostgreSQL proficiency, 94% pytest coverage, and dual CI/CD tools strongly support an ACCEPT decision. No flags, hallucination risks, or injection attempts detected.</div>
+      </div>
+
+      <!-- Override -->
+      <div class="override-card">
+        <div class="override-label">Reviewer Override</div>
+        <div class="override-btns">
+          <button class="ov-btn ov-accept" onclick="ov('accept')">✓ Accept</button>
+          <button class="ov-btn ov-hold" onclick="ov('hold')">⏸ Hold</button>
+          <button class="ov-btn ov-reject" onclick="ov('reject')">✕ Reject</button>
+        </div>
+      </div>
+
+      <!-- Audit -->
+      <div class="audit-card">
+        <div class="audit-label">Audit Log</div>
+        <div class="audit-entry"><div class="aed done"></div><div class="ae-info"><div class="ae-action">AI screened → ACCEPT [92%] (txscreen-v2.1.0)</div><div class="ae-time">2026-09-03 09:14 UTC</div></div></div>
+        <div class="audit-entry"><div class="aed done"></div><div class="ae-info"><div class="ae-action">Result queued for recruiter review</div><div class="ae-time">2026-09-03 09:15 UTC</div></div></div>
+        <div class="audit-entry"><div class="aed active"></div><div class="ae-info"><div class="ae-action">Recruiter review in progress — Sarah K.</div><div class="ae-time">Now</div></div></div>
+        <div class="audit-entry"><div class="aed pending"></div><div class="ae-info"><div class="ae-action">Hiring manager sign-off (pending)</div><div class="ae-time">—</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function activateEv(n){
+  // Deactivate all
+  document.querySelectorAll('.ev-item').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.highlight').forEach(h=>h.classList.remove('active'));
+  // Activate matching
+  const evItem=document.getElementById('ev-'+n);
+  if(evItem){evItem.classList.add('active');evItem.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  document.querySelectorAll('[data-ev="'+n+'"]').forEach(h=>h.classList.add('active'));
+}
+function ov(d){
+  const msgs={accept:'✓ Accept confirmed — audit log updated.',hold:'⏸ Override to Hold applied.',reject:'✕ Override to Reject applied — audit log updated.'};
+  const toast=document.getElementById('toast');
+  toast.textContent=msgs[d];
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>

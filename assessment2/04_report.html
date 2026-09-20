@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AssessAI 2.0 — Assessment Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#6d28d9;--brand2:#7c3aed;--brand-light:#ede9fe;--brand-border:#c4b5fd;
+  --bg:#f4f4f5;--white:#fff;--border:#e4e4e7;--border2:#d4d4d8;
+  --text:#09090b;--text2:#3f3f46;--text3:#71717a;--text4:#a1a1aa;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;min-height:100vh}
+
+/* Nav */
+.nav{background:rgba(250,250,250,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50}
+.nl{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nl-i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:800}
+.nl-t{font-size:15px;font-weight:800;color:var(--text)}
+.nl-v{font-size:10px;font-weight:600;color:var(--brand);background:var(--brand-light);border-radius:4px;padding:1px 5px}
+.nsep{color:var(--text4);font-size:16px}
+.npg{font-size:13px;font-weight:600;color:var(--text2)}
+.nsp{flex:1}
+.nsteps{display:flex;gap:3px}
+.nst{padding:5px 12px;border-radius:7px;font-size:12px;font-weight:500;color:var(--text3);text-decoration:none;transition:all 0.15s}
+.nst.active{background:var(--brand-light);color:var(--brand);font-weight:700}
+.nst:hover:not(.active){background:var(--border);color:var(--text2)}
+.nav-print{background:var(--text);color:white;border:none;border-radius:7px;padding:7px 16px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.nav-print:hover{background:var(--text2)}
+
+/* Toolbar */
+.toolbar{background:var(--white);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:8px}
+.tb-btn{background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.12s;display:flex;align-items:center;gap:5px}
+.tb-btn:hover{border-color:var(--brand-border);color:var(--brand)}
+.tb-spacer{flex:1}
+.tb-primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;border:none;border-radius:7px;padding:8px 18px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s}
+.tb-primary:hover{box-shadow:0 4px 14px rgba(109,40,217,0.35);transform:translateY(-1px)}
+
+/* Report wrapper */
+.report-wrapper{max-width:860px;margin:28px auto 60px;padding:0 28px}
+
+/* Report card */
+.report-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+
+/* Report header */
+.report-header{padding:32px 36px;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);position:relative;overflow:hidden}
+.rh-bg{position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(109,40,217,0.3),transparent 60%)}
+.rh-content{position:relative}
+.rh-org{font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.rh-org-dot{width:6px;height:6px;border-radius:50%;background:var(--brand-border)}
+.rh-title{font-size:28px;font-weight:800;color:white;letter-spacing:-1px;margin-bottom:6px}
+.rh-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:20px}
+.rh-tags{display:flex;gap:8px;flex-wrap:wrap}
+.rh-tag{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.75);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:600}
+.rh-meta-row{display:flex;gap:0;margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px}
+.rh-meta-item{flex:1;padding-right:16px}
+.rh-meta-item:last-child{padding-right:0}
+.rh-meta-label{font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px}
+.rh-meta-val{font-size:12px;color:rgba(255,255,255,0.8);font-weight:600}
+
+/* Report body */
+.report-body{padding:32px 36px}
+
+/* Section */
+.rsec{margin-bottom:32px}
+.rsec-title{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.rsec-num{width:24px;height:24px;border-radius:7px;background:var(--brand);color:white;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rsec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+
+/* Recommendation block */
+.rec-grid{display:grid;grid-template-columns:180px 1fr;gap:16px;margin-bottom:0}
+.rec-verdict{background:linear-gradient(135deg,var(--amber-bg),#fff7ed);border:1px solid var(--amber-border);border-radius:12px;padding:20px;text-align:center}
+.rv-label{font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
+.rv-score{font-size:34px;font-weight:800;color:var(--amber);letter-spacing:-1px}
+.rv-decision{font-size:14px;font-weight:800;color:var(--amber);margin:4px 0}
+.rv-conf{font-size:11px;color:var(--text4)}
+.rec-summary{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px}
+.rec-summary-title{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.rec-summary-ai{background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;border-radius:4px;padding:1px 8px;font-size:9px;font-weight:700}
+.rec-summary-text{font-size:13px;color:var(--text2);line-height:1.75}
+
+/* Info table */
+.info-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.info-tbl tr{border-bottom:1px solid var(--border)}
+.info-tbl tr:last-child{border:none}
+.info-tbl .lc{color:var(--text3);font-weight:600;padding:8px 12px 8px 0;width:190px;vertical-align:top}
+.info-tbl .vc{color:var(--text2);padding:8px 0}
+
+/* Score table */
+.score-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.score-tbl thead th{background:var(--brand);color:white;padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700}
+.score-tbl thead th:first-child{border-radius:8px 0 0 0}
+.score-tbl thead th:last-child{border-radius:0 8px 0 0}
+.score-tbl tbody td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.score-tbl tbody tr:last-child td{border:none;background:var(--bg);font-weight:700}
+.st-bar-wrap{width:90px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.st-bar{height:100%;border-radius:3px}
+.stb-hi{background:linear-gradient(90deg,var(--green),#22c55e)}
+.stb-md{background:linear-gradient(90deg,var(--amber),#f59e0b)}
+.st-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;white-space:nowrap}
+.stbg-hi{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.stbg-md{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sg-card{border:1px solid var(--border);border-radius:10px;padding:16px}
+.sg-card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sg-card-title.green{color:var(--green)}
+.sg-card-title.amber{color:var(--amber)}
+.sg-item{font-size:12px;color:var(--text2);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.6}
+.sg-item::before{position:absolute;left:0;font-size:12px;font-weight:700}
+.sg-item.s::before{content:'✓';color:var(--green)}
+.sg-item.g::before{content:'⚠';color:var(--amber)}
+.sg-note{font-size:11px;color:var(--text4);font-style:italic;margin-top:2px}
+
+/* Follow-up questions */
+.fup-list{display:flex;flex-direction:column;gap:8px}
+.fup-item{display:flex;gap:10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;padding:11px 14px}
+.fup-num{font-size:11px;font-weight:700;color:var(--blue);flex-shrink:0;padding-top:1px}
+.fup-text{font-size:12.5px;color:var(--text2);line-height:1.55}
+
+/* Audit table */
+.audit-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.audit-tbl thead th{background:var(--text);color:white;padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700}
+.audit-tbl thead th:first-child{border-radius:6px 0 0 0}
+.audit-tbl thead th:last-child{border-radius:0 6px 0 0}
+.audit-tbl tbody td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text3);font-family:var(--mono);font-size:10px}
+.audit-tbl tbody tr:last-child td{border:none}
+.at-done{color:var(--green);font-weight:700}
+.at-pending{color:var(--amber);font-weight:600}
+
+/* Report footer */
+.report-footer{padding:24px 36px;border-top:1px solid var(--border);display:flex;gap:20px;background:var(--bg)}
+.rf-legal{flex:1;font-size:11px;color:var(--text4);line-height:1.65}
+.rf-legal strong{color:var(--text3)}
+.sig-blocks{display:flex;gap:10px;flex-shrink:0}
+.sig-block{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;min-width:150px;text-align:center}
+.sig-line{border-bottom:1px solid var(--border2);height:36px;margin-bottom:6px}
+.sig-label{font-size:10px;color:var(--text4);text-transform:uppercase;letter-spacing:0.5px}
+
+/* Toast */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--text);color:white;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(10px);transition:all 0.25s}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media print{
+  .nav,.toolbar{display:none!important}
+  .report-wrapper{margin:0;padding:0;max-width:100%}
+  .report-card{border:none;box-shadow:none;border-radius:0}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nl" href="index.html"><div class="nl-i">A</div><div class="nl-t">AssessAI</div><div class="nl-v">2.0</div></a>
+  <span class="nsep">›</span><span class="npg">Assessment Report</span>
+  <div class="nsp"></div>
+  <div class="nsteps">
+    <a class="nst" href="01_generator.html">1 · Generate</a>
+    <a class="nst" href="02_candidate.html">2 · Take</a>
+    <a class="nst" href="03_evaluator.html">3 · Evaluate</a>
+    <a class="nst active" href="04_report.html">4 · Report</a>
+  </div>
+  <button class="nav-print" onclick="window.print()">🖨 Print PDF</button>
+</nav>
+
+<div class="toolbar">
+  <button class="tb-btn" onclick="toast2('🔗 Report link copied!')">🔗 Share Report</button>
+  <button class="tb-btn" onclick="toast2('📧 Sent to hiring committee')">📧 Email Committee</button>
+  <button class="tb-btn" onclick="toast2('💾 Saved to ATS · #ASS-2026-0047')">💾 Save to ATS</button>
+  <div class="tb-spacer"></div>
+  <button class="tb-primary" onclick="window.print()">🖨 Export as PDF</button>
+</div>
+
+<div class="report-wrapper">
+  <div class="report-card">
+
+    <!-- Header -->
+    <div class="report-header">
+      <div class="rh-bg"></div>
+      <div class="rh-content">
+        <div class="rh-org"><div class="rh-org-dot"></div>AssessAI 2.0 · Technical Assessment Report · Confidential</div>
+        <div class="rh-title">Senior React Developer</div>
+        <div class="rh-sub">Candidate Technical Assessment · Alex Johnson · #ASS-2026-0047</div>
+        <div class="rh-tags">
+          <span class="rh-tag">React · TypeScript · Node.js</span>
+          <span class="rh-tag">Senior (3–5 yrs)</span>
+          <span class="rh-tag">9 Questions</span>
+          <span class="rh-tag">assessai-v2.0</span>
+        </div>
+        <div class="rh-meta-row">
+          <div class="rh-meta-item"><div class="rh-meta-label">Report ID</div><div class="rh-meta-val">REP-2026-0047</div></div>
+          <div class="rh-meta-item"><div class="rh-meta-label">Generated</div><div class="rh-meta-val">Sep 3, 2026 · 11:00 UTC</div></div>
+          <div class="rh-meta-item"><div class="rh-meta-label">AI Model</div><div class="rh-meta-val">assessai-v2.0</div></div>
+          <div class="rh-meta-item"><div class="rh-meta-label">Status</div><div class="rh-meta-val" style="color:#86efac">AI Complete · Pending Review</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="report-body">
+
+      <!-- Section 1: Recommendation -->
+      <div class="rsec">
+        <div class="rsec-title">
+          <div class="rsec-num">1</div>
+          <div class="rsec-label">AI Recommendation</div>
+        </div>
+        <div class="rec-grid">
+          <div class="rec-verdict">
+            <div class="rv-label">AI Score</div>
+            <div class="rv-score">78<span style="font-size:16px;font-weight:400;color:var(--text4)">/100</span></div>
+            <div class="rv-decision">⏩ ADVANCE</div>
+            <div class="rv-conf">Confidence: 82%</div>
+          </div>
+          <div class="rec-summary">
+            <div class="rec-summary-title"><span class="rec-summary-ai">🤖 AI</span> Executive Summary</div>
+            <div class="rec-summary-text">Alex Johnson demonstrates <strong>strong command of React fundamentals</strong> — hooks, memoization, data-fetching patterns, and TypeScript — scoring 96% on conceptual questions. Performance is weaker in practical coding: submissions showed correct conceptual approaches but missed production-quality requirements (TypeScript generics, exponential backoff, 5xx retry). The system design answer revealed a gap in conflict resolution knowledge (last-write-wins vs OT/CRDTs). The behavioral response was exceptional — structured, specific, and measurable. Overall: <strong>recommend advancing to a 1-hour technical interview</strong> with targeted deep-dives on async patterns and distributed systems.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Candidate Info -->
+      <div class="rsec">
+        <div class="rsec-title"><div class="rsec-num">2</div><div class="rsec-label">Candidate Information</div></div>
+        <table class="info-tbl">
+          <tr><td class="lc">Full Name</td><td class="vc">Alex Johnson</td></tr>
+          <tr><td class="lc">Role Applied For</td><td class="vc">Senior React Developer</td></tr>
+          <tr><td class="lc">Assessment ID</td><td class="vc">#ASS-2026-0047</td></tr>
+          <tr><td class="lc">Submitted</td><td class="vc">September 3, 2026 · 10:42 AM UTC</td></tr>
+          <tr><td class="lc">Time Taken</td><td class="vc">38 minutes 24 seconds (of 45 min allowed)</td></tr>
+          <tr><td class="lc">Completion</td><td class="vc">9 / 9 questions answered (100%)</td></tr>
+          <tr><td class="lc">Assessment Model</td><td class="vc">assessai-v2.0 · prompt-template: tech-senior-v2</td></tr>
+        </table>
+      </div>
+
+      <!-- Section 3: Score Breakdown -->
+      <div class="rsec">
+        <div class="rsec-title"><div class="rsec-num">3</div><div class="rsec-label">Score Breakdown by Category</div></div>
+        <table class="score-tbl">
+          <thead>
+            <tr><th>Category</th><th>Questions</th><th>Score</th><th>Visual</th><th>Recommendation</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MCQ — React Fundamentals</td><td>Q1–Q5</td>
+              <td><strong style="color:var(--green)">48/50 (96%)</strong></td>
+              <td><div class="st-bar-wrap"><div class="st-bar stb-hi" style="width:96%"></div></div></td>
+              <td><span class="st-badge stbg-hi">Exceptional</span></td>
+            </tr>
+            <tr>
+              <td>Coding — Custom Hook</td><td>Q6</td>
+              <td><strong style="color:var(--amber)">7/10 (70%)</strong></td>
+              <td><div class="st-bar-wrap"><div class="st-bar stb-md" style="width:70%"></div></div></td>
+              <td><span class="st-badge stbg-md">Probe Deeper</span></td>
+            </tr>
+            <tr>
+              <td>Coding — Async Patterns</td><td>Q7</td>
+              <td><strong style="color:var(--amber)">6/10 (60%)</strong></td>
+              <td><div class="st-bar-wrap"><div class="st-bar stb-md" style="width:60%"></div></div></td>
+              <td><span class="st-badge stbg-md">Probe Deeper</span></td>
+            </tr>
+            <tr>
+              <td>System Design</td><td>Q8</td>
+              <td><strong style="color:var(--amber)">7/10 (70%)</strong></td>
+              <td><div class="st-bar-wrap"><div class="st-bar stb-md" style="width:70%"></div></div></td>
+              <td><span class="st-badge stbg-md">Probe Deeper</span></td>
+            </tr>
+            <tr>
+              <td>Behavioral</td><td>Q9</td>
+              <td><strong style="color:var(--green)">10/10 (100%)</strong></td>
+              <td><div class="st-bar-wrap"><div class="st-bar stb-hi" style="width:100%"></div></div></td>
+              <td><span class="st-badge stbg-hi">Exceptional</span></td>
+            </tr>
+            <tr>
+              <td><strong>Total</strong></td><td>9 questions</td>
+              <td><strong style="color:var(--amber);font-size:15px">78/100 (78%)</strong></td>
+              <td><div class="st-bar-wrap"><div class="st-bar stb-md" style="width:78%"></div></div></td>
+              <td><span class="st-badge stbg-md">Advance to Interview</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Section 4: Strengths & Gaps -->
+      <div class="rsec">
+        <div class="rsec-title"><div class="rsec-num">4</div><div class="rsec-label">AI-Identified Strengths &amp; Knowledge Gaps</div></div>
+        <div class="two-col">
+          <div class="sg-card">
+            <div class="sg-card-title green">✓ Strengths</div>
+            <div class="sg-item s">Excellent React Hooks depth — useEffect, useMemo, useCallback, React.memo all correctly explained with nuance
+              <div class="sg-note">Evidence: 4/5 MCQ questions scored 10/10</div>
+            </div>
+            <div class="sg-item s">TypeScript interface vs type distinction clearly understood
+              <div class="sg-note">Evidence: Q3 answer, 9/10</div>
+            </div>
+            <div class="sg-item s">Outstanding behavioral response with specific metrics and process improvement
+              <div class="sg-note">Evidence: Q9 — FCP 3.8s → 0.9s, CI budget</div>
+            </div>
+            <div class="sg-item s">Modern data-fetching — correctly identified React Query with per-page cache keys
+              <div class="sg-note">Evidence: Q4, 10/10</div>
+            </div>
+            <div class="sg-item s">Engineering maturity — proactively added performance budget to CI pipeline
+              <div class="sg-note">Evidence: Q9 behavioral answer</div>
+            </div>
+          </div>
+          <div class="sg-card">
+            <div class="sg-card-title amber">⚠ Gaps to Probe</div>
+            <div class="sg-item g">TypeScript generics in practical code — useDebounce missing generic type parameter
+              <div class="sg-note">Evidence: Q6 code submission</div>
+            </div>
+            <div class="sg-item g">Exponential backoff — used fixed delay instead of backoff × 2^attempt
+              <div class="sg-note">Evidence: Q7 code submission</div>
+            </div>
+            <div class="sg-item g">5xx retry logic missing — only retried on network errors, not HTTP failures
+              <div class="sg-note">Evidence: Q7 code submission</div>
+            </div>
+            <div class="sg-item g">Conflict resolution knowledge gap — proposed last-write-wins instead of OT/CRDTs
+              <div class="sg-note">Evidence: Q8 system design</div>
+            </div>
+            <div class="sg-item g">Thundering herd / jitter — not mentioned in async patterns context
+              <div class="sg-note">Evidence: Q7 code submission</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Follow-up Questions -->
+      <div class="rsec">
+        <div class="rsec-title"><div class="rsec-num">5</div><div class="rsec-label">Recommended Interview Follow-Up Questions</div></div>
+        <div class="fup-list">
+          <div class="fup-item"><div class="fup-num">Q1</div><div class="fup-text">How would you modify <code style="background:rgba(0,0,0,0.06);border-radius:3px;padding:1px 4px;font-size:11px">useDebounce</code> to also expose a <code style="background:rgba(0,0,0,0.06);border-radius:3px;padding:1px 4px;font-size:11px">cancel()</code> function that lets the caller clear the pending timer manually?</div></div>
+          <div class="fup-item"><div class="fup-num">Q2</div><div class="fup-text">Explain what "thundering herd" means in retry logic. How would you add jitter to your backoff implementation to prevent it?</div></div>
+          <div class="fup-item"><div class="fup-num">Q3</div><div class="fup-text">What is the difference between Operational Transformation and CRDTs for conflict resolution in a collaborative editor? Which would you choose and why?</div></div>
+          <div class="fup-item"><div class="fup-num">Q4</div><div class="fup-text">Give an example where using <code style="background:rgba(0,0,0,0.06);border-radius:3px;padding:1px 4px;font-size:11px">useCallback</code> would cause a performance regression rather than an improvement.</div></div>
+          <div class="fup-item"><div class="fup-num">Q5</div><div class="fup-text">How would you implement a performance budget in CI? What metrics would you track and what thresholds would trigger a build failure?</div></div>
+        </div>
+      </div>
+
+      <!-- Section 6: Audit Trail -->
+      <div class="rsec">
+        <div class="rsec-title"><div class="rsec-num">6</div><div class="rsec-label">Audit Trail</div></div>
+        <table class="audit-tbl">
+          <thead><tr><th>Timestamp (UTC)</th><th>Actor</th><th>Event</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>2026-09-03 09:00:00</td><td>system (assessai-v2.0)</td><td>Assessment generated · Senior React Developer · 9 questions · template: tech-senior-v2</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>2026-09-03 09:05:00</td><td>system (automated)</td><td>Assessment link sent to Alex Johnson · #ASS-2026-0047</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>2026-09-03 10:04:00</td><td>candidate (Alex Johnson)</td><td>Portal opened · timer started (45:00)</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>2026-09-03 10:42:24</td><td>candidate (Alex Johnson)</td><td>Assessment submitted · 9/9 answered · time taken: 38m 24s</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>2026-09-03 10:42:31</td><td>system (assessai-v2.0)</td><td>AI evaluation started · 9 answers evaluated · prompt: eval-tech-senior-v1</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>2026-09-03 10:43:12</td><td>system (assessai-v2.0)</td><td>AI scoring complete · 78/100 · ADVANCE · confidence: 82%</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>2026-09-03 11:00:00</td><td>system (automated)</td><td>Report REP-2026-0047 generated and dispatched to recruiter dashboard</td><td class="at-done">COMPLETE</td></tr>
+            <tr><td>—</td><td>recruiter / hiring manager</td><td>Human review and approval of AI recommendation</td><td class="at-pending">PENDING</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /report-body -->
+
+    <!-- Footer -->
+    <div class="report-footer">
+      <div class="rf-legal">
+        <strong>Legal:</strong> This report was generated by AssessAI v2.0 as a supplementary hiring tool. All AI scores and recommendations require human review. This document must not be the sole basis for any hiring decision. Retain for minimum 3 years per HR policy.<br><br>
+        <strong>Bias Disclosure:</strong> AssessAI scores answer content only — no demographic data, protected characteristics, or personal attributes are used in evaluation. Model is audited quarterly.
+      </div>
+      <div class="sig-blocks">
+        <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Recruiter · Date</div></div>
+        <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Hiring Manager · Date</div></div>
+      </div>
+    </div>
+
+  </div><!-- /report-card -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function toast2(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>

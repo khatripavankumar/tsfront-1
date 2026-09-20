@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — 10 Design Mocks</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--border:#334155;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --blue:#3b82f6;--green:#4ade80;--gold:#fbbf24;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:40px 24px}
+.page-header{text-align:center;margin-bottom:48px}
+.page-header .eyebrow{font-size:11px;font-weight:600;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.page-header h1{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.page-header .subtitle{font-size:15px;color:var(--text2);max-width:600px;margin:0 auto;line-height:1.6}
+.candidate-chip{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:6px 16px 6px 6px;margin-top:16px}
+.chip-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.chip-text{font-size:12px;color:var(--text2)}
+.chip-text strong{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;max-width:1200px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.2s;display:flex;flex-direction:column}
+.card:hover{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 8px 32px rgba(59,130,246,0.15);transform:translateY(-2px)}
+.card-preview{height:6px}
+.card:nth-child(1) .card-preview{background:linear-gradient(90deg,#0d1117,#3fb950,#58a6ff)}
+.card:nth-child(2) .card-preview{background:linear-gradient(90deg,#2563eb,#16a34a,#f8fafc)}
+.card:nth-child(3) .card-preview{background:linear-gradient(90deg,#1e3a5f,#d97706,#16a34a)}
+.card:nth-child(4) .card-preview{background:linear-gradient(90deg,#fef08a,#2563eb,#16a34a)}
+.card:nth-child(5) .card-preview{background:linear-gradient(90deg,#4f46e5,#16a34a,#d97706,#dc2626)}
+.card:nth-child(6) .card-preview{background:linear-gradient(90deg,#f8fafc,#e2e8f0,#2563eb)}
+.card:nth-child(7) .card-preview{background:linear-gradient(90deg,#1e293b,#2563eb,#6366f1)}
+.card:nth-child(8) .card-preview{background:linear-gradient(90deg,#f1f5f9,#2563eb,#16a34a)}
+.card:nth-child(9) .card-preview{background:linear-gradient(90deg,#171717,#404040,#15803d)}
+.card:nth-child(10) .card-preview{background:linear-gradient(90deg,#0f0c29,#302b63,#4ade80)}
+.card-body{padding:18px;flex:1;display:flex;flex-direction:column;gap:10px}
+.card-num{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.card-title{font-size:16px;font-weight:700;color:var(--text)}
+.card-audience{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.card-audience-badge{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-size:10px;color:var(--text2)}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.6;flex:1}
+.card-features{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.feature-chip{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:2px 8px;font-size:10px;color:#93c5fd}
+.card-footer{padding:14px 18px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)}
+.open-btn{width:100%;padding:10px;background:linear-gradient(135deg,var(--blue),#6366f1);color:white;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;text-decoration:none}
+.open-btn:hover{opacity:0.9;box-shadow:0 4px 16px rgba(59,130,246,0.4)}
+.footer{text-align:center;margin-top:48px;color:var(--text3);font-size:12px}
+.footer a{color:var(--text2);text-decoration:none}
+.footer a:hover{color:var(--text)}
+.stats-row{display:flex;gap:24px;justify-content:center;margin-bottom:40px}
+.stat{text-align:center}
+.stat-val{font-size:28px;font-weight:800;color:var(--green)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">Frontend Task 1 — Design Mocks</div>
+  <h1>10 Candidate Screening Review Screens</h1>
+  <div class="subtitle">Each mock uses identical screening data for direct comparison. All screens include: candidate profile, AI decision, evidence quotes, confidence score, reviewer override, and audit history.</div>
+  <div class="candidate-chip">
+    <div class="chip-avatar">JM</div>
+    <div class="chip-text">Shared data: <strong>Jane Martinez</strong> → Senior Python Developer · AI: <strong style="color:var(--green)">ACCEPT</strong> · Confidence: <strong>92%</strong> · Evidence: <strong>6/6</strong></div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-val">10</div><div class="stat-label">Design Styles</div></div>
+  <div class="stat"><div class="stat-val">6</div><div class="stat-label">Evidence Items</div></div>
+  <div class="stat"><div class="stat-val">92%</div><div class="stat-label">AI Confidence</div></div>
+  <div class="stat"><div class="stat-val">100%</div><div class="stat-label">Self-Contained HTML</div></div>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 01</div>
+      <div class="card-title">Dark Technical Console</div>
+      <div class="card-audience"><span class="card-audience-badge">Engineers · Power Users</span></div>
+      <div class="card-desc">Terminal/IDE-inspired dark UI with monospace font, dense information layout, code-block evidence quotes, and a status bar. High-density test-bench direction.</div>
+      <div class="card-features"><span class="feature-chip">Dark Theme</span><span class="feature-chip">Monospace</span><span class="feature-chip">High Density</span><span class="feature-chip">Terminal UX</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="01_dark_technical.html" target="_blank">🖥 Open Mock 01 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 02</div>
+      <div class="card-title">Clean Enterprise SaaS</div>
+      <div class="card-audience"><span class="card-audience-badge">HR · Recruiters · TA Teams</span></div>
+      <div class="card-desc">Light theme with Inter font, Greenhouse-style pipeline sidebar, donut confidence chart, accordion evidence items, and enterprise-style action buttons.</div>
+      <div class="card-features"><span class="feature-chip">Light Theme</span><span class="feature-chip">Accordion</span><span class="feature-chip">Pipeline Sidebar</span><span class="feature-chip">Donut Chart</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="02_clean_enterprise.html" target="_blank">🏢 Open Mock 02 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 03</div>
+      <div class="card-title">Executive Dashboard</div>
+      <div class="card-audience"><span class="card-audience-badge">Hiring Managers · VPs</span></div>
+      <div class="card-desc">Summary-first KPI cards, skill match bar chart, evidence table, horizontal audit steps. Designed for decision-makers who need a fast overview.</div>
+      <div class="card-features"><span class="feature-chip">KPI Cards</span><span class="feature-chip">Skill Chart</span><span class="feature-chip">Evidence Table</span><span class="feature-chip">Summary-First</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="03_executive_dashboard.html" target="_blank">📊 Open Mock 03 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 04</div>
+      <div class="card-title">Evidence-First Split Panel</div>
+      <div class="card-audience"><span class="card-audience-badge">Compliance Recruiters</span></div>
+      <div class="card-desc">50/50 split: resume with yellow highlights on the left, AI assessment on the right. Click evidence items to cross-highlight quotes in the source document.</div>
+      <div class="card-features"><span class="feature-chip">Split Panel</span><span class="feature-chip">Live Highlights</span><span class="feature-chip">Cross-Link</span><span class="feature-chip">Evidence-First</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="04_evidence_first.html" target="_blank">📄 Open Mock 04 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 05</div>
+      <div class="card-title">Kanban Pipeline Workflow</div>
+      <div class="card-audience"><span class="card-audience-badge">Recruiting Coordinators</span></div>
+      <div class="card-desc">4-column kanban: In Review, Advance, Hold, Reject. Jane's card is active in column 1. Click her card to open a slide-in detail drawer with full screening data.</div>
+      <div class="card-features"><span class="feature-chip">Kanban Board</span><span class="feature-chip">Detail Drawer</span><span class="feature-chip">Pipeline</span><span class="feature-chip">4 Columns</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="05_kanban_workflow.html" target="_blank">📋 Open Mock 05 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 06</div>
+      <div class="card-title">Table / Grid Bulk Review</div>
+      <div class="card-audience"><span class="card-audience-badge">Recruiting Operations</span></div>
+      <div class="card-desc">Spreadsheet-style table with 10 candidate rows, mini confidence bars, inline override buttons, bulk actions, and a right-panel detail drawer for Jane's record.</div>
+      <div class="card-features"><span class="feature-chip">Data Table</span><span class="feature-chip">Bulk Actions</span><span class="feature-chip">Filters</span><span class="feature-chip">Detail Drawer</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="06_table_grid.html" target="_blank">📑 Open Mock 06 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 07</div>
+      <div class="card-title">Chat / Copilot Interface</div>
+      <div class="card-audience"><span class="card-audience-badge">Guided Recruiters</span></div>
+      <div class="card-desc">ChatGPT-style interface with pre-loaded 4-turn conversation. AI explains all 6 evidence items conversationally. Sidebar shows past screens; right panel shows quick actions.</div>
+      <div class="card-features"><span class="feature-chip">Chat UI</span><span class="feature-chip">Conversational AI</span><span class="feature-chip">Sidebar History</span><span class="feature-chip">Quick Actions</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="07_chat_copilot.html" target="_blank">💬 Open Mock 07 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 08</div>
+      <div class="card-title">Mobile-First Reviewer</div>
+      <div class="card-audience"><span class="card-audience-badge">On-the-Go Recruiters</span></div>
+      <div class="card-desc">Realistic phone frame with notch, status bar, active candidate card with confidence ring, expandable evidence chips, large Accept/Hold/Reject thumb buttons, and a confirmation overlay.</div>
+      <div class="card-features"><span class="feature-chip">Phone Frame</span><span class="feature-chip">Mobile UX</span><span class="feature-chip">Thumb Targets</span><span class="feature-chip">Overlay Confirm</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="08_mobile_first.html" target="_blank">📱 Open Mock 08 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 09</div>
+      <div class="card-title">Compliance / Audit-First</div>
+      <div class="card-audience"><span class="card-audience-badge">Legal · Compliance · Audit</span></div>
+      <div class="card-desc">Formal document-style layout with 7 numbered sections: model metadata, candidate info, AI decision, confidence scale, flag grid, evidence table with verbatim quotes, override form, and chronological audit log with system hashes.</div>
+      <div class="card-features"><span class="feature-chip">Document Layout</span><span class="feature-chip">Model Metadata</span><span class="feature-chip">Evidence Table</span><span class="feature-chip">Audit Hashes</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="09_compliance_audit.html" target="_blank">⚖️ Open Mock 09 →</a></div>
+  </div>
+
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <div class="card-num">Mock 10</div>
+      <div class="card-title">Premium Modern AI</div>
+      <div class="card-audience"><span class="card-audience-badge">Enterprise Demo · Product</span></div>
+      <div class="card-desc">Dark gradient background, glassmorphism cards, animated SVG confidence ring filling to 92%, fade-in evidence cards, glowing override buttons, and a glowing audit timeline. The wow-factor screen.</div>
+      <div class="card-features"><span class="feature-chip">Glassmorphism</span><span class="feature-chip">Animations</span><span class="feature-chip">Glow Effects</span><span class="feature-chip">Premium UX</span></div>
+    </div>
+    <div class="card-footer"><a class="open-btn" href="10_premium_modern.html" target="_blank">✨ Open Mock 10 →</a></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>All 10 mocks · <a href="..">d:\txfront-task\mocks\</a> · Self-contained HTML · No build step required</p>
+  <p style="margin-top:6px">Same data: Jane Martinez · Senior Python Developer · ACCEPT · 92% confidence · 6/6 evidence</p>
+</div>
+
+</body>
+</html>

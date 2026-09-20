@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — Kanban Pipeline View</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f1f5f9;--white:#fff;--border:#e2e8f0;--text:#1e293b;--text2:#334155;--text3:#64748b;--text4:#94a3b8;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#86efac;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fcd34d;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --col-review:#e0e7ff;--col-review-h:#4f46e5;
+  --col-advance:#d1fae5;--col-advance-h:#059669;
+  --col-hold:#fef3c7;--col-hold-h:#d97706;
+  --col-reject:#fee2e2;--col-reject-h:#dc2626;
+  --shadow:0 1px 4px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.12);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Top Bar */
+.topbar{background:white;border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:14px;flex-shrink:0;box-shadow:var(--shadow)}
+.tb-logo{font-weight:800;font-size:16px;color:var(--blue);display:flex;align-items:center;gap:8px}
+.tb-logo-mark{width:30px;height:30px;background:var(--blue);border-radius:8px;color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.tb-divider{width:1px;height:26px;background:var(--border)}
+.tb-title{font-size:14px;font-weight:600;color:var(--text)}
+.tb-sub{font-size:11px;color:var(--text3)}
+.tb-spacer{flex:1}
+.tb-badge{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600}
+.tb-user{display:flex;align-items:center;gap:8px}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);color:white;font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center}
+
+/* Sub bar */
+.subbar{background:white;border-bottom:1px solid var(--border);padding:8px 20px;font-size:11px;color:var(--text3);flex-shrink:0;display:flex;align-items:center;gap:8px}
+.subbar strong{color:var(--text2)}
+
+/* Board */
+.board-wrap{flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:0}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;height:100%;overflow:hidden}
+
+/* Column */
+.column{background:transparent;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.col-header{border-radius:10px 10px 0 0;padding:12px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.col-header.review{background:var(--col-review)}
+.col-header.advance{background:var(--col-advance)}
+.col-header.hold{background:var(--col-hold)}
+.col-header.reject{background:var(--col-reject)}
+.col-title{font-weight:700;font-size:13px}
+.col-header.review .col-title{color:var(--col-review-h)}
+.col-header.advance .col-title{color:var(--col-advance-h)}
+.col-header.hold .col-title{color:var(--col-hold-h)}
+.col-header.reject .col-title{color:var(--col-reject-h)}
+.col-count{border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:auto}
+.col-header.review .col-count{background:rgba(79,70,229,0.15);color:var(--col-review-h)}
+.col-header.advance .col-count{background:rgba(5,150,105,0.15);color:var(--col-advance-h)}
+.col-header.hold .col-count{background:rgba(217,119,6,0.15);color:var(--col-hold-h)}
+.col-header.reject .col-count{background:rgba(220,38,38,0.15);color:var(--col-reject-h)}
+.col-body{background:#f8fafd;border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+
+/* Cards */
+.card{background:white;border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow)}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.card.active-card{border:2px solid var(--blue);box-shadow:0 0 0 3px var(--blue-border),var(--shadow-md);transform:none}
+.card-name{font-weight:600;font-size:13px;color:var(--text);margin-bottom:2px}
+.card-role{font-size:11px;color:var(--text3)}
+.card-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.card-badge{border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700}
+.card-badge.accept{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.card-badge.hold{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.card-badge.reject{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.card-conf{font-size:10px;color:var(--text4);margin-left:auto}
+.card-time{font-size:10px;color:var(--text4);margin-top:4px}
+.active-card .card-hint{color:var(--blue);font-size:10px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px}
+.card-hint{display:none}
+.active-card .card-hint{display:flex}
+
+/* Detail Drawer */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:none;align-items:stretch}
+.drawer-overlay.open{display:flex}
+.drawer-backdrop{flex:1;cursor:pointer}
+.drawer{width:480px;background:white;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.15);display:flex;flex-direction:column;flex-shrink:0}
+.drawer-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:white;z-index:10}
+.drawer-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#7c3aed);color:white;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.drawer-name{font-weight:700;font-size:16px}
+.drawer-role{font-size:12px;color:var(--text3)}
+.drawer-close{margin-left:auto;width:32px;height:32px;border-radius:8px;background:var(--bg);border:none;cursor:pointer;font-size:18px;color:var(--text3);display:flex;align-items:center;justify-content:center}
+.drawer-close:hover{background:var(--border);color:var(--text)}
+.drawer-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+.drawer-decision{background:var(--green-bg);border:1px solid var(--green-border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px}
+.drawer-dec-badge{background:var(--green);color:white;border-radius:6px;padding:8px 16px;font-size:14px;font-weight:700}
+.drawer-dec-info .drawer-dec-title{font-weight:600;color:var(--green)}
+.drawer-dec-info .drawer-dec-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.drawer-conf-bar-wrap{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.drawer-conf-bar{height:100%;background:linear-gradient(90deg,var(--green),#10b981);width:92%;border-radius:4px}
+.drawer-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.drawer-ev-item{border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:12px}
+.drawer-ev-num{font-weight:700;color:var(--blue);margin-bottom:3px;font-size:11px}
+.drawer-ev-quote{color:var(--text2);font-style:italic;line-height:1.5}
+.drawer-ev-rel{color:var(--text4);font-size:11px;margin-top:3px}
+.drawer-actions{display:flex;gap:8px}
+.daction-btn{flex:1;padding:10px;border-radius:8px;border:none;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.daction-btn.advance{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.daction-btn.advance:hover{background:var(--green);color:white}
+.daction-btn.hold{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.daction-btn.hold:hover{background:var(--amber);color:white}
+.daction-btn.reject{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.daction-btn.reject:hover{background:var(--red);color:white}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#1e293b;color:white;border-radius:10px;padding:12px 24px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:all 0.3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo"><div class="tb-logo-mark">TX</div>TXScreen</div>
+  <div class="tb-divider"></div>
+  <div>
+    <div class="tb-title">Senior Python Developer — Recruiting Pipeline</div>
+    <div class="tb-sub">Kanban View · 10 candidates total</div>
+  </div>
+  <div class="tb-spacer"></div>
+  <div class="tb-badge">Kanban Pipeline View | Audience: Recruiting Coordinators</div>
+  <div class="tb-user">
+    <span style="font-size:12px;color:var(--text3)">Sarah K.</span>
+    <div class="tb-avatar">SK</div>
+  </div>
+</div>
+
+<div class="subbar">
+  Tip: <strong>Click Jane Martinez's card (In Review)</strong> to open the full screening detail drawer.
+</div>
+
+<div class="board-wrap">
+  <div class="board">
+
+    <!-- Column 1: In Review -->
+    <div class="column">
+      <div class="col-header review"><div class="col-title">🔍 In Review</div><div class="col-count">1</div></div>
+      <div class="col-body">
+        <!-- Jane Martinez - Active card -->
+        <div class="card active-card" onclick="openDrawer()">
+          <div class="card-name">Jane Martinez</div>
+          <div class="card-role">→ Senior Python Developer</div>
+          <div class="card-row">
+            <div class="card-badge accept">AI: ACCEPT</div>
+            <div class="card-conf">92% confidence</div>
+          </div>
+          <div class="card-time">⏱ In review · 11 min ago</div>
+          <div class="card-hint">👆 Click to view full screening details</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Advance -->
+    <div class="column">
+      <div class="col-header advance"><div class="col-title">✅ Advance</div><div class="col-count">3</div></div>
+      <div class="col-body">
+        <div class="card"><div class="card-name">David Chen</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge accept">ACCEPT</div><div class="card-conf">88%</div></div><div class="card-time">📅 Advanced · 2h ago</div></div>
+        <div class="card"><div class="card-name">Priya Kapoor</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge accept">ACCEPT</div><div class="card-conf">84%</div></div><div class="card-time">📅 Advanced · 4h ago</div></div>
+        <div class="card"><div class="card-name">Ravi Mehta</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge accept">ACCEPT</div><div class="card-conf">81%</div></div><div class="card-time">📅 Advanced · Yesterday</div></div>
+      </div>
+    </div>
+
+    <!-- Column 3: Hold -->
+    <div class="column">
+      <div class="col-header hold"><div class="col-title">⏸ Hold</div><div class="col-count">2</div></div>
+      <div class="col-body">
+        <div class="card"><div class="card-name">Alex Petrov</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge hold">NEEDS REVIEW</div><div class="card-conf">55%</div></div><div class="card-time">📅 On hold · 1d ago</div></div>
+        <div class="card"><div class="card-name">Maria Santos</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge hold">NEEDS REVIEW</div><div class="card-conf">48%</div></div><div class="card-time">📅 On hold · 1d ago</div></div>
+      </div>
+    </div>
+
+    <!-- Column 4: Reject -->
+    <div class="column">
+      <div class="col-header reject"><div class="col-title">❌ Reject</div><div class="col-count">4</div></div>
+      <div class="col-body">
+        <div class="card"><div class="card-name">Tom Bradley</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge reject">REJECT</div><div class="card-conf">91%</div></div><div class="card-time">📅 Rejected · 2d ago</div></div>
+        <div class="card"><div class="card-name">Lisa Park</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge reject">REJECT</div><div class="card-conf">87%</div></div><div class="card-time">📅 Rejected · 2d ago</div></div>
+        <div class="card"><div class="card-name">James O'Brien</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge reject">REJECT</div><div class="card-conf">94%</div></div><div class="card-time">📅 Rejected · 3d ago</div></div>
+        <div class="card"><div class="card-name">Nina Williams</div><div class="card-role">→ Senior Python Developer</div><div class="card-row"><div class="card-badge reject">REJECT</div><div class="card-conf">89%</div></div><div class="card-time">📅 Rejected · 3d ago</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer-backdrop" onclick="closeDrawer()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-avatar">JM</div>
+      <div>
+        <div class="drawer-name">Jane Martinez</div>
+        <div class="drawer-role">Lead Python Developer · Applying for Senior Python Developer</div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+
+      <div class="drawer-decision">
+        <div class="drawer-dec-badge">✓ ACCEPT</div>
+        <div class="drawer-dec-info">
+          <div class="drawer-dec-title">AI Decision: Accept</div>
+          <div class="drawer-dec-sub">Confidence: 92% ± 4% · 6/6 requirements matched</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="drawer-section-title">Confidence Score</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-size:20px;font-weight:800;color:var(--green)">92%</span>
+          <span style="font-size:11px;color:var(--text4)">Uncertainty: ±4%</span>
+        </div>
+        <div class="drawer-conf-bar-wrap"><div class="drawer-conf-bar"></div></div>
+        <div style="font-size:10px;color:var(--text4)">Range: 88% – 96%</div>
+      </div>
+
+      <div>
+        <div class="drawer-section-title">Evidence Record (6/6)</div>
+        <div class="drawer-ev-item"><div class="drawer-ev-num">01 · 5+ yrs Python ✓</div><div class="drawer-ev-quote">"Lead Python Developer at CloudScale Inc. (2019–2024)"</div><div class="drawer-ev-rel">5 years direct Python leadership experience</div></div>
+        <div class="drawer-ev-item"><div class="drawer-ev-num">02 · Django/Flask ✓</div><div class="drawer-ev-quote">"Architected and maintained 12 Django-based microservices handling 2M+ daily requests"</div><div class="drawer-ev-rel">Production-scale Django experience</div></div>
+        <div class="drawer-ev-item"><div class="drawer-ev-num">03 · REST API ✓</div><div class="drawer-ev-quote">"Designed RESTful APIs consumed by mobile and web clients"</div><div class="drawer-ev-rel">Direct REST API design experience</div></div>
+        <div class="drawer-ev-item"><div class="drawer-ev-num">04 · PostgreSQL ✓</div><div class="drawer-ev-quote">"Managed PostgreSQL databases with complex query optimization"</div><div class="drawer-ev-rel">Advanced PostgreSQL proficiency</div></div>
+        <div class="drawer-ev-item"><div class="drawer-ev-num">05 · pytest ✓</div><div class="drawer-ev-quote">"pytest achieving 94% code coverage"</div><div class="drawer-ev-rel">Measurable testing discipline</div></div>
+        <div class="drawer-ev-item"><div class="drawer-ev-num">06 · CI/CD ✓</div><div class="drawer-ev-quote">"CI/CD pipelines with GitHub Actions and Jenkins"</div><div class="drawer-ev-rel">Dual CI/CD tool experience</div></div>
+      </div>
+
+      <div>
+        <div class="drawer-section-title">Move Candidate</div>
+        <div class="drawer-actions">
+          <button class="daction-btn advance" onclick="move('advance')">✅ Advance</button>
+          <button class="daction-btn hold" onclick="move('hold')">⏸ Hold</button>
+          <button class="daction-btn reject" onclick="move('reject')">❌ Reject</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="drawer-section-title">Audit Log</div>
+        <div style="font-size:12px;color:var(--text3);display:flex;flex-direction:column;gap:6px">
+          <div>✅ <strong>2026-09-03 09:14 UTC</strong> — AI screened → ACCEPT [92%]</div>
+          <div>✅ <strong>2026-09-03 09:15 UTC</strong> — Queued for recruiter review</div>
+          <div>🔵 <strong>Now</strong> — Recruiter reviewing (Sarah K.)</div>
+          <div style="color:var(--text4)">⬜ Pending — Hiring manager sign-off</div>
+        </div>
+      </div>
+
+      <div style="padding:10px 12px;background:var(--bg);border-radius:8px;font-size:11px;color:var(--text3)">
+        <strong>Model:</strong> txscreen-v2.1.0 &nbsp;·&nbsp; <strong>Prompt:</strong> resume-screening-v3 &nbsp;·&nbsp; <strong>Flags:</strong> None
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function openDrawer(){document.getElementById('drawerOverlay').classList.add('open')}
+function closeDrawer(){document.getElementById('drawerOverlay').classList.remove('open')}
+function move(d){
+  const msgs={advance:'✅ Jane Martinez moved to Advance',hold:'⏸ Jane Martinez moved to Hold',reject:'❌ Jane Martinez moved to Reject'};
+  const toast=document.getElementById('toast');
+  toast.textContent=msgs[d];toast.classList.add('show');
+  setTimeout(()=>{toast.classList.remove('show');closeDrawer();},2500);
+}
+</script>
+</body>
+</html>

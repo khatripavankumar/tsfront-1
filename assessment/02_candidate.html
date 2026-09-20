@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AssessAI — Candidate Assessment Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;--border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--text2:#334155;--text3:#64748b;--text4:#94a3b8;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#86efac;
+  --amber:#d97706;--red:#dc2626;--purple:#7c3aed;
+  --shadow:0 1px 4px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.1);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* Assessment Header */
+.assessment-header{background:var(--blue);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.ah-logo{font-size:16px;font-weight:800;color:white;display:flex;align-items:center;gap:8px}
+.ah-logo .mark{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.ah-title{color:rgba(255,255,255,0.85);font-size:14px;font-weight:500}
+.ah-spacer{flex:1}
+.ah-timer{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:5px 14px;color:white;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.ah-timer.warning{background:rgba(220,38,38,0.4);border-color:rgba(220,38,38,0.6)}
+.ah-timer.warning .timer-val{animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+.ah-save{font-size:11px;color:rgba(255,255,255,0.6)}
+
+/* Progress bar */
+.progress-bar-wrap{height:4px;background:rgba(255,255,255,0.15)}
+.progress-bar{height:100%;background:rgba(255,255,255,0.8);transition:width 0.4s ease}
+
+/* Layout */
+.main-layout{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+.q-sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 12px;overflow-y:auto;flex-shrink:0}
+.sidebar-label{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+.q-nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:16px}
+.q-nav-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;position:relative}
+.q-nav-btn:hover{border-color:var(--blue);color:var(--blue)}
+.q-nav-btn.active{background:var(--blue);color:white;border-color:var(--blue)}
+.q-nav-btn.answered{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.q-nav-btn.answered.active{background:var(--green);color:white}
+.q-type-legend{display:flex;flex-direction:column;gap:6px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+.ld-mcq{background:var(--blue-bg);border:1px solid var(--blue-border)}
+.ld-code{background:var(--green-bg);border:1px solid var(--green-border)}
+.ld-design{background:#f5f3ff;border:1px solid #ddd6fe}
+.ld-beh{background:#fffbeb;border:1px solid #fde68a}
+.answered-count{font-size:11px;color:var(--text3);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.answered-count strong{color:var(--green);font-weight:700}
+
+/* Main content */
+.q-main{flex:1;overflow-y:auto;padding:28px;max-width:860px;margin:0 auto;width:100%}
+
+/* Question Card */
+.question-panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.qp-meta{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.qp-num{width:30px;height:30px;border-radius:8px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qp-num.mcq{background:var(--blue-bg);color:var(--blue)}
+.qp-num.code{background:var(--green-bg);color:var(--green)}
+.qp-num.design{background:#f5f3ff;color:var(--purple)}
+.qp-num.behavioral{background:#fffbeb;color:var(--amber)}
+.qp-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px}
+.qb-mcq{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.qb-code{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.qb-design{background:#f5f3ff;color:var(--purple);border:1px solid #ddd6fe}
+.qb-behavioral{background:#fffbeb;color:var(--amber);border:1px solid #fde68a}
+.qp-time{font-size:11px;color:var(--text4);margin-left:auto;display:flex;align-items:center;gap:4px}
+.qp-question{font-size:15px;font-weight:600;color:var(--text);line-height:1.6;margin-bottom:18px}
+
+/* MCQ Options */
+.mcq-options{display:flex;flex-direction:column;gap:8px}
+.mcq-option{padding:12px 16px;border-radius:10px;border:2px solid var(--border);background:var(--bg3);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.15s}
+.mcq-option:hover{border-color:var(--blue-border);background:var(--blue-bg)}
+.mcq-option.selected{border-color:var(--blue);background:var(--blue-bg)}
+.mcq-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.mcq-option.selected .mcq-radio{border-color:var(--blue);background:var(--blue)}
+.mcq-option.selected .mcq-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:white}
+.mcq-label{font-size:13px;color:var(--text2)}
+.mcq-option.selected .mcq-label{color:var(--blue);font-weight:500}
+
+/* Code editor */
+.code-editor-wrap{position:relative;border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+.editor-topbar{background:#1e293b;padding:8px 14px;display:flex;align-items:center;gap:8px}
+.editor-dot{width:10px;height:10px;border-radius:50%}
+.ed1{background:#ff5f56}.ed2{background:#ffbd2e}.ed3{background:#27c93f}
+.editor-lang{margin-left:auto;font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace}
+.code-context{background:#0f172a;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#64748b;line-height:1.7;border-bottom:1px solid #1e293b}
+.code-context .cm{color:#334155}
+.code-context .cs{color:#7dd3fc}
+.code-context .cf{color:#86efac}
+.code-context .ck{color:#c084fc}
+.code-textarea{width:100%;min-height:180px;background:#0f172a;border:none;outline:none;padding:14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#e2e8f0;line-height:1.8;resize:vertical}
+.code-statusbar{background:#1e293b;padding:5px 14px;font-size:10px;color:#475569;font-family:'JetBrains Mono',monospace;display:flex;gap:16px}
+
+/* Text areas */
+.answer-textarea{width:100%;min-height:140px;background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:14px;font-family:inherit;font-size:13px;color:var(--text);outline:none;resize:vertical;line-height:1.7}
+.answer-textarea:focus{border-color:var(--blue)}
+
+/* Nav buttons */
+.q-nav-controls{display:flex;gap:10px;margin-top:12px;justify-content:flex-end}
+.nav-btn{padding:9px 18px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;color:var(--text2)}
+.nav-btn:hover{border-color:var(--blue);color:var(--blue)}
+.nav-btn.primary{background:var(--blue);color:white;border-color:var(--blue)}
+.nav-btn.primary:hover{background:#1d4ed8}
+.coding-next-btn{display:inline-flex!important;visibility:visible!important;opacity:1!important;min-width:170px;justify-content:center;position:relative;z-index:2}
+
+/* Submit footer */
+.submit-footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:0 -2px 8px rgba(0,0,0,0.05)}
+.sf-answered{font-size:13px;color:var(--text3)}
+.sf-answered strong{color:var(--green)}
+.sf-spacer{flex:1}
+.submit-btn{background:linear-gradient(135deg,var(--green),#059669);color:white;border:none;border-radius:10px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
+.submit-btn:hover{box-shadow:0 4px 16px rgba(22,163,74,0.4);transform:translateY(-1px)}
+
+/* Scoring overlay */
+.scoring-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:none;align-items:center;justify-content:center}
+.scoring-overlay.open{display:flex}
+.scoring-card{background:var(--bg2);border-radius:20px;padding:40px;width:440px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3)}
+.sc-icon{font-size:52px;margin-bottom:16px}
+.sc-title{font-size:20px;font-weight:800;margin-bottom:8px}
+.sc-sub{font-size:13px;color:var(--text3);margin-bottom:24px;line-height:1.6}
+.sc-progress-wrap{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.sc-progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;width:0%;transition:width 0.5s ease}
+.sc-progress-label{font-size:11px;color:var(--text4);margin-bottom:24px}
+.sc-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:24px;text-align:left}
+.sc-step{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:8px}
+.sc-step.done{color:var(--green)}
+.sc-step.active{color:var(--blue)}
+.sc-btn{background:linear-gradient(135deg,var(--blue),var(--purple));color:white;border:none;border-radius:10px;padding:12px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;width:100%;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px}
+.sc-btn:hover{opacity:0.9}
+</style>
+</head>
+<body>
+
+<div class="assessment-header">
+  <div class="ah-logo"><div class="mark">A</div>AssessAI</div>
+  <div class="ah-title">Senior React Developer Assessment · Alex Johnson</div>
+  <div class="ah-spacer"></div>
+  <div class="ah-save" id="autoSave">● Auto-saved</div>
+  <div class="ah-timer" id="timer">⏱ <span class="timer-val" id="timerVal">45:00</span></div>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar" id="progressBar" style="width:11%"></div>
+</div>
+
+<div class="main-layout">
+  <!-- Sidebar -->
+  <div class="q-sidebar">
+    <div class="sidebar-label">Questions</div>
+    <div class="q-nav-grid">
+      <div class="q-nav-btn active" id="nav-1" onclick="goTo(1)">1</div>
+      <div class="q-nav-btn" id="nav-2" onclick="goTo(2)">2</div>
+      <div class="q-nav-btn" id="nav-3" onclick="goTo(3)">3</div>
+      <div class="q-nav-btn" id="nav-4" onclick="goTo(4)">4</div>
+      <div class="q-nav-btn" id="nav-5" onclick="goTo(5)">5</div>
+      <div class="q-nav-btn" id="nav-6" onclick="goTo(6)">6</div>
+      <div class="q-nav-btn" id="nav-7" onclick="goTo(7)">7</div>
+      <div class="q-nav-btn" id="nav-8" onclick="goTo(8)">8</div>
+      <div class="q-nav-btn" id="nav-9" onclick="goTo(9)">9</div>
+    </div>
+    <div class="q-type-legend">
+      <div class="legend-item"><div class="legend-dot ld-mcq"></div>MCQ (Q1–Q5)</div>
+      <div class="legend-item"><div class="legend-dot ld-code"></div>Coding (Q6–Q7)</div>
+      <div class="legend-item"><div class="legend-dot ld-design"></div>Design (Q8)</div>
+      <div class="legend-item"><div class="legend-dot ld-beh"></div>Behavioral (Q9)</div>
+    </div>
+    <div class="answered-count">Answered: <strong id="answeredCount">0</strong> / 9</div>
+  </div>
+
+  <!-- Main -->
+  <div class="q-main">
+
+    <!-- Q1 -->
+    <div class="question-panel" id="qpanel-1">
+      <div class="qp-meta">
+        <div class="qp-num mcq">1</div>
+        <span class="qp-badge qb-mcq">MCQ</span>
+        <div class="qp-time">⏱ ~2 min</div>
+      </div>
+      <div class="qp-question">In React, which hook would you use to run a side effect only when a specific value changes (not on every render)?</div>
+      <div class="mcq-options" id="mcq-1">
+        <div class="mcq-option" onclick="selectOption(1,'a',this)"><div class="mcq-radio"></div><span class="mcq-label">useState</span></div>
+        <div class="mcq-option" onclick="selectOption(1,'b',this)"><div class="mcq-radio"></div><span class="mcq-label">useRef</span></div>
+        <div class="mcq-option" onclick="selectOption(1,'c',this)"><div class="mcq-radio"></div><span class="mcq-label">useEffect with dependency array</span></div>
+        <div class="mcq-option" onclick="selectOption(1,'d',this)"><div class="mcq-radio"></div><span class="mcq-label">useMemo</span></div>
+      </div>
+      <div class="q-nav-controls"><button class="nav-btn primary" onclick="goTo(2)">Next →</button></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-panel" id="qpanel-2" style="display:none">
+      <div class="qp-meta"><div class="qp-num mcq">2</div><span class="qp-badge qb-mcq">MCQ</span><div class="qp-time">⏱ ~3 min</div></div>
+      <div class="qp-question">What is the primary difference between useMemo and useCallback in React?</div>
+      <div class="mcq-options" id="mcq-2">
+        <div class="mcq-option" onclick="selectOption(2,'a',this)"><div class="mcq-radio"></div><span class="mcq-label">useMemo memoizes a value; useCallback memoizes a function reference</span></div>
+        <div class="mcq-option" onclick="selectOption(2,'b',this)"><div class="mcq-radio"></div><span class="mcq-label">They are identical — just different names</span></div>
+        <div class="mcq-option" onclick="selectOption(2,'c',this)"><div class="mcq-radio"></div><span class="mcq-label">useCallback memoizes a value; useMemo memoizes a function</span></div>
+        <div class="mcq-option" onclick="selectOption(2,'d',this)"><div class="mcq-radio"></div><span class="mcq-label">useMemo is for class components only</span></div>
+      </div>
+      <div class="q-nav-controls"><button class="nav-btn" onclick="goTo(1)">← Prev</button><button class="nav-btn primary" onclick="goTo(3)">Next →</button></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-panel" id="qpanel-3" style="display:none">
+      <div class="qp-meta"><div class="qp-num mcq">3</div><span class="qp-badge qb-mcq">MCQ</span><div class="qp-time">⏱ ~3 min</div></div>
+      <div class="qp-question">In TypeScript, what is the difference between <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-family:monospace">interface</code> and <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-family:monospace">type</code>?</div>
+      <div class="mcq-options" id="mcq-3">
+        <div class="mcq-option" onclick="selectOption(3,'a',this)"><div class="mcq-radio"></div><span class="mcq-label">No difference at all</span></div>
+        <div class="mcq-option" onclick="selectOption(3,'b',this)"><div class="mcq-radio"></div><span class="mcq-label">interface supports declaration merging; type supports unions, intersections, and complex expressions</span></div>
+        <div class="mcq-option" onclick="selectOption(3,'c',this)"><div class="mcq-radio"></div><span class="mcq-label">type is deprecated in TypeScript 5+</span></div>
+        <div class="mcq-option" onclick="selectOption(3,'d',this)"><div class="mcq-radio"></div><span class="mcq-label">interface only works with classes</span></div>
+      </div>
+      <div class="q-nav-controls"><button class="nav-btn" onclick="goTo(2)">← Prev</button><button class="nav-btn primary" onclick="goTo(4)">Next →</button></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-panel" id="qpanel-4" style="display:none">
+      <div class="qp-meta"><div class="qp-num mcq">4</div><span class="qp-badge qb-mcq">MCQ</span><div class="qp-time">⏱ ~4 min</div></div>
+      <div class="qp-question">When implementing pagination with a REST API in React, what is the most efficient approach to avoid re-fetching already-loaded pages?</div>
+      <div class="mcq-options" id="mcq-4">
+        <div class="mcq-option" onclick="selectOption(4,'a',this)"><div class="mcq-radio"></div><span class="mcq-label">Always re-fetch all pages on navigation</span></div>
+        <div class="mcq-option" onclick="selectOption(4,'b',this)"><div class="mcq-radio"></div><span class="mcq-label">Use React Query or SWR with cache keys per page</span></div>
+        <div class="mcq-option" onclick="selectOption(4,'c',this)"><div class="mcq-radio"></div><span class="mcq-label">Store all data in localStorage</span></div>
+        <div class="mcq-option" onclick="selectOption(4,'d',this)"><div class="mcq-radio"></div><span class="mcq-label">Use a global Redux store only</span></div>
+      </div>
+      <div class="q-nav-controls"><button class="nav-btn" onclick="goTo(3)">← Prev</button><button class="nav-btn primary" onclick="goTo(5)">Next →</button></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-panel" id="qpanel-5" style="display:none">
+      <div class="qp-meta"><div class="qp-num mcq">5</div><span class="qp-badge qb-mcq">MCQ</span><div class="qp-time">⏱ ~3 min</div></div>
+      <div class="qp-question">What is the purpose of React.memo and when should you NOT use it?</div>
+      <div class="mcq-options" id="mcq-5">
+        <div class="mcq-option" onclick="selectOption(5,'a',this)"><div class="mcq-radio"></div><span class="mcq-label">React.memo is always beneficial and should wrap every component</span></div>
+        <div class="mcq-option" onclick="selectOption(5,'b',this)"><div class="mcq-radio"></div><span class="mcq-label">React.memo prevents re-renders if props are reference-equal; avoid when props change frequently or comparison is expensive</span></div>
+        <div class="mcq-option" onclick="selectOption(5,'c',this)"><div class="mcq-radio"></div><span class="mcq-label">React.memo only works with class components</span></div>
+        <div class="mcq-option" onclick="selectOption(5,'d',this)"><div class="mcq-radio"></div><span class="mcq-label">React.memo replaces useCallback</span></div>
+      </div>
+      <div class="q-nav-controls"><button class="nav-btn" onclick="goTo(4)">← Prev</button><button class="nav-btn primary" onclick="goTo(6)">Next →</button></div>
+    </div>
+
+    <!-- Q6 Coding -->
+    <div class="question-panel" id="qpanel-6" style="display:none">
+      <div class="qp-meta"><div class="qp-num code">6</div><span class="qp-badge qb-code">Coding</span><div class="qp-time">⏱ ~20 min</div></div>
+      <div class="qp-question">Implement a custom React hook <code style="background:#f0fdf4;padding:1px 5px;border-radius:3px;font-family:monospace;color:#16a34a">useDebounce(value, delay)</code> that returns a debounced version of the value. The debounced value should only update after the user has stopped changing it for the specified delay.</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Write your implementation in the editor below:</div>
+      <div class="code-editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dot ed1"></div><div class="editor-dot ed2"></div><div class="editor-dot ed3"></div>
+          <div class="editor-lang">TypeScript · React</div>
+        </div>
+        <div class="code-context"><span class="cm">// Context — this is how the hook will be used:</span>
+<span class="ck">const</span> [searchTerm, setSearchTerm] = <span class="cf">useState</span>(<span class="cs">''</span>);
+<span class="ck">const</span> debouncedSearch = <span class="cf">useDebounce</span>(searchTerm, <span class="cs">500</span>);
+
+<span class="cf">useEffect</span>(() => { <span class="cf">fetchResults</span>(debouncedSearch); }, [debouncedSearch]);</div>
+        <textarea class="code-textarea" id="code-6" placeholder="// Write your useDebounce implementation here..." oninput="markAnswered(6)"></textarea>
+        <div class="code-statusbar"><span id="lineCount6">Ln 1, Col 1</span><span>UTF-8</span><span>TypeScript</span></div>
+      </div>
+      <div class="q-nav-controls"><button type="button" class="nav-btn" onclick="goTo(5)">← Prev</button><button type="button" class="nav-btn primary coding-next-btn" onclick="goTo(7)">Next Coding Challenge →</button></div>
+    </div>
+
+    <!-- Q7 Coding -->
+    <div class="question-panel" id="qpanel-7" style="display:none">
+      <div class="qp-meta"><div class="qp-num code">7</div><span class="qp-badge qb-code">Coding</span><div class="qp-time">⏱ ~25 min</div></div>
+      <div class="qp-question">Implement a TypeScript function <code style="background:#f0fdf4;padding:1px 5px;border-radius:3px;font-family:monospace;color:#16a34a">fetchWithRetry&lt;T&gt;</code> that retries a failed fetch request with exponential backoff. It should retry on network errors and 5xx responses.</div>
+      <div class="code-editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dot ed1"></div><div class="editor-dot ed2"></div><div class="editor-dot ed3"></div>
+          <div class="editor-lang">TypeScript</div>
+        </div>
+        <div class="code-context"><span class="cm">// Expected signature:</span>
+<span class="ck">async function</span> <span class="cf">fetchWithRetry</span>&lt;T&gt;(
+  url: <span class="cs">string</span>, options: RequestInit,
+  retries: <span class="cs">number</span> = <span class="cs">3</span>, backoffMs: <span class="cs">number</span> = <span class="cs">500</span>
+): Promise&lt;T&gt;</div>
+        <textarea class="code-textarea" id="code-7" placeholder="// Write your fetchWithRetry implementation here..." oninput="markAnswered(7)"></textarea>
+        <div class="code-statusbar"><span>Ln 1, Col 1</span><span>UTF-8</span><span>TypeScript</span></div>
+      </div>
+      <div class="q-nav-controls"><button type="button" class="nav-btn" onclick="goTo(6)">← Prev</button><button type="button" class="nav-btn primary coding-next-btn" onclick="goTo(8)">Next Question →</button></div>
+    </div>
+
+    <!-- Q8 System Design -->
+    <div class="question-panel" id="qpanel-8" style="display:none">
+      <div class="qp-meta"><div class="qp-num design">8</div><span class="qp-badge qb-design">System Design</span><div class="qp-time">⏱ ~20 min</div></div>
+      <div class="qp-question">Design the architecture for a real-time collaborative document editor (like Google Docs) built with React. Focus on: state synchronization between clients, conflict resolution, offline support, and performance with large documents.</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Describe your architecture, key components, technologies, and design decisions:</div>
+      <textarea class="answer-textarea" id="design-8" placeholder="Describe your system design here. Include: architecture overview, key technologies, conflict resolution strategy, offline handling approach, and performance considerations..." oninput="markAnswered(8)"></textarea>
+      <div class="q-nav-controls"><button class="nav-btn" onclick="goTo(7)">← Prev</button><button class="nav-btn primary" onclick="goTo(9)">Next →</button></div>
+    </div>
+
+    <!-- Q9 Behavioral -->
+    <div class="question-panel" id="qpanel-9" style="display:none">
+      <div class="qp-meta"><div class="qp-num behavioral">9</div><span class="qp-badge qb-behavioral">Behavioral</span><div class="qp-time">⏱ ~10 min</div></div>
+      <div class="qp-question">Describe a situation where you discovered a significant performance issue in a React application in production. How did you identify it, what was the root cause, and how did you fix it? What measurable improvement did you achieve?</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Use the STAR format (Situation, Task, Action, Result) for the best response:</div>
+      <textarea class="answer-textarea" id="behavioral-9" placeholder="Describe your experience here. Include: the specific performance problem, profiling tools used, root cause analysis, fix applied, and measurable results..." oninput="markAnswered(9)"></textarea>
+      <div class="q-nav-controls"><button class="nav-btn" onclick="goTo(8)">← Prev</button></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="submit-footer">
+  <div class="sf-answered">Answered: <strong id="sfAnswered">0</strong> / 9 questions</div>
+  <div class="sf-spacer"></div>
+  <button class="submit-btn" onclick="submitAssessment()">✓ Submit Assessment</button>
+</div>
+
+<!-- Scoring Overlay -->
+<div class="scoring-overlay" id="scoringOverlay">
+  <div class="scoring-card">
+    <div class="sc-icon" id="scIcon">🧠</div>
+    <div class="sc-title" id="scTitle">Submitting Assessment...</div>
+    <div class="sc-sub" id="scSub">Please wait while AssessAI evaluates your answers</div>
+    <div class="sc-progress-wrap"><div class="sc-progress-bar" id="scProgressBar"></div></div>
+    <div class="sc-progress-label" id="scProgressLabel">0% complete</div>
+    <div class="sc-steps" id="scSteps">
+      <div class="sc-step" id="ss1">⬜ Uploading responses...</div>
+      <div class="sc-step" id="ss2">⬜ Evaluating MCQ answers...</div>
+      <div class="sc-step" id="ss3">⬜ Analyzing code submissions...</div>
+      <div class="sc-step" id="ss4">⬜ Scoring system design...</div>
+      <div class="sc-step" id="ss5">⬜ Generating overall report...</div>
+    </div>
+    <a class="sc-btn" id="scBtn" href="ai_interview.html" style="display:none">Continue to AI Interview →</a>
+  </div>
+</div>
+
+<script>
+let current=1;
+const answered=new Set();
+
+function goTo(n){
+  document.getElementById(`qpanel-${current}`).style.display='none';
+  document.getElementById(`nav-${current}`).classList.remove('active');
+  current=n;
+  document.getElementById(`qpanel-${n}`).style.display='block';
+  document.getElementById(`nav-${n}`).classList.add('active');
+  document.getElementById('progressBar').style.width=(n/9*100)+'%';
+  window.scrollTo(0,0);
+}
+
+function selectOption(q, opt, el){
+  document.querySelectorAll(`#mcq-${q} .mcq-option`).forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  markAnswered(q);
+}
+
+function markAnswered(n){
+  answered.add(n);
+  document.getElementById(`nav-${n}`).classList.add('answered');
+  updateAnsweredCount();
+}
+
+function updateAnsweredCount(){
+  document.getElementById('answeredCount').textContent=answered.size;
+  document.getElementById('sfAnswered').textContent=answered.size;
+}
+
+// Timer
+let secs=45*60;
+const timerEl=document.getElementById('timerVal');
+const timerWrap=document.getElementById('timer');
+setInterval(()=>{
+  if(secs<=0)return;
+  secs--;
+  const m=Math.floor(secs/60),s=secs%60;
+  timerEl.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(secs<300)timerWrap.classList.add('warning');
+},1000);
+
+// Auto-save simulation
+let saveTimer;
+['code-6','code-7','design-8','behavioral-9'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input',()=>{
+    const sv=document.getElementById('autoSave');
+    sv.textContent='● Saving...';sv.style.color='rgba(255,255,255,0.5)';
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{sv.textContent='✓ Saved';sv.style.color='rgba(255,255,255,0.7)';},800);
+  });
+});
+
+function submitAssessment(){
+  const overlay=document.getElementById('scoringOverlay');
+  overlay.classList.add('open');
+  const steps=[
+    {id:'ss1',label:'✅ Responses uploaded',t:800},
+    {id:'ss2',label:'✅ MCQ answers evaluated (5/5)',t:1800},
+    {id:'ss3',label:'✅ Code submissions analyzed (2/2)',t:3000},
+    {id:'ss4',label:'✅ System design scored',t:4200},
+    {id:'ss5',label:'✅ Report generated — score: 78/100',t:5400}
+  ];
+  const pcts=[15,35,60,80,100];
+  steps.forEach((step,i)=>{
+    const el=document.getElementById(step.id);
+    // Activate
+    setTimeout(()=>{
+      el.textContent='🔵 '+el.textContent.replace('⬜ ','');
+      el.classList.add('active');
+      document.getElementById('scProgressBar').style.width=pcts[i]+'%';
+      document.getElementById('scProgressLabel').textContent=pcts[i]+'% complete';
+    },step.t-400);
+    // Done
+    setTimeout(()=>{
+      el.textContent=step.label;
+      el.classList.remove('active');el.classList.add('done');
+    },step.t);
+  });
+  setTimeout(()=>{
+    document.getElementById('scIcon').textContent='🎉';
+    document.getElementById('scTitle').textContent='Assessment Complete!';
+    document.getElementById('scSub').textContent='Your assessment is scored. Complete a short AI interview to finalize your progress report.';
+    document.getElementById('scBtn').style.display='flex';
+  },5800);
+}
+</script>
+</body>
+</html>

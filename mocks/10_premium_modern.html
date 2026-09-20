@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXScreen — Premium Modern AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-grad:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);
+  --glass:rgba(255,255,255,0.06);--glass-border:rgba(255,255,255,0.12);
+  --glass-hover:rgba(255,255,255,0.1);
+  --text:rgba(255,255,255,0.95);--text2:rgba(255,255,255,0.7);--text3:rgba(255,255,255,0.45);--text4:rgba(255,255,255,0.25);
+  --green:#4ade80;--green-glow:rgba(74,222,128,0.3);--green-dim:rgba(74,222,128,0.15);
+  --amber:#fbbf24;--amber-glow:rgba(251,191,36,0.3);
+  --red:#f87171;--red-glow:rgba(248,113,113,0.3);
+  --blue:#60a5fa;--blue-glow:rgba(96,165,250,0.3);
+  --purple:#c084fc;--gold:#f59e0b;
+}
+body{background:var(--bg-grad);background-attachment:fixed;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;position:relative;overflow-x:hidden}
+
+/* Background stars/dots */
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,0.15) 0%,transparent 100%),radial-gradient(1px 1px at 80% 10%,rgba(255,255,255,0.1) 0%,transparent 100%),radial-gradient(1px 1px at 50% 80%,rgba(255,255,255,0.1) 0%,transparent 100%),radial-gradient(2px 2px at 10% 70%,rgba(192,132,252,0.2) 0%,transparent 100%),radial-gradient(2px 2px at 90% 60%,rgba(74,222,128,0.15) 0%,transparent 100%);pointer-events:none;z-index:0}
+
+.container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:40px 24px}
+
+/* Top Nav */
+.topnav{display:flex;align-items:center;gap:12px;margin-bottom:48px}
+.nav-logo{font-size:18px;font-weight:800;letter-spacing:-0.5px}
+.nav-logo .tx{color:var(--green)}
+.nav-logo .screen{color:var(--text2)}
+.nav-badge{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--text3);backdrop-filter:blur(10px)}
+.nav-spacer{flex:1}
+.model-badge{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--green);font-weight:500}
+.nav-user{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:4px 12px 4px 5px;backdrop-filter:blur(10px)}
+.nav-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.nav-username{font-size:12px;color:var(--text2)}
+
+/* Hero Section */
+.hero{text-align:center;margin-bottom:48px}
+.hero-eyebrow{font-size:12px;font-weight:600;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;opacity:0;animation:fadeUp 0.6s ease 0.2s forwards}
+.hero-title{font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:8px;opacity:0;animation:fadeUp 0.6s ease 0.4s forwards}
+.hero-title .name-gradient{background:linear-gradient(135deg,var(--text) 0%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-role{font-size:18px;color:var(--text2);font-weight:400;opacity:0;animation:fadeUp 0.6s ease 0.6s forwards}
+.hero-role span{color:var(--blue)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Glass Card base */
+.glass-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);overflow:hidden}
+
+/* Decision Card */
+.decision-card{padding:32px;text-align:center;margin-bottom:24px;opacity:0;animation:fadeUp 0.6s ease 0.8s forwards;position:relative;overflow:hidden}
+.decision-card::before{content:'';position:absolute;inset:-40%;background:radial-gradient(ellipse at 50% 50%,rgba(74,222,128,0.08) 0%,transparent 70%);pointer-events:none}
+.dec-label{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.dec-value{font-size:52px;font-weight:800;color:var(--green);letter-spacing:4px;line-height:1;margin-bottom:4px;text-shadow:0 0 40px var(--green-glow),0 0 80px rgba(74,222,128,0.1)}
+.dec-glow-ring{width:200px;height:200px;margin:20px auto;position:relative}
+.dec-glow-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:36px;font-weight:800;color:var(--green)}
+.ring-pct-label{font-size:11px;color:var(--text3);font-weight:500}
+.ring-pct-range{font-size:10px;color:var(--text4);margin-top:2px}
+.ring-animated{stroke-dasharray:565;stroke-dashoffset:565;animation:ringFill 1.5s ease 1.2s forwards}
+@keyframes ringFill{to{stroke-dashoffset:45}}
+
+/* Cards grid */
+.evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.ev-card{padding:16px 18px;border-radius:16px;opacity:0;animation:fadeUp 0.5s ease forwards;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.ev-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 100%);pointer-events:none}
+.ev-card:hover{background:var(--glass-hover);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.ev-card:nth-child(1){animation-delay:1.0s}
+.ev-card:nth-child(2){animation-delay:1.1s}
+.ev-card:nth-child(3){animation-delay:1.2s}
+.ev-card:nth-child(4){animation-delay:1.3s}
+.ev-card:nth-child(5){animation-delay:1.4s}
+.ev-card:nth-child(6){animation-delay:1.5s}
+.ev-num-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.ev-num-label .ev-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green-glow)}
+.ev-quote{font-size:12px;color:var(--text2);font-style:italic;line-height:1.55;margin-bottom:8px;font-family:'Inter',sans-serif}
+.ev-req-badge{display:inline-block;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:var(--green);border-radius:20px;padding:2px 10px;font-size:10px;font-weight:600}
+
+/* Reason card */
+.reason-card{padding:24px;margin-bottom:24px;opacity:0;animation:fadeUp 0.5s ease 1.6s forwards}
+.reason-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.reason-label::after{content:'';flex:1;height:1px;background:var(--glass-border)}
+.reason-text{font-size:14px;color:var(--text2);line-height:1.75;font-family:'Inter',sans-serif}
+
+/* Override section */
+.override-section{margin-bottom:24px;opacity:0;animation:fadeUp 0.5s ease 1.7s forwards}
+.override-label{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:16px}
+.override-btns{display:flex;gap:12px;justify-content:center}
+.ov-premium-btn{padding:14px 28px;border-radius:14px;border:1px solid;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.25s;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.ov-premium-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.25s;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,0.08) 0%,transparent 70%)}
+.ov-premium-btn:hover::before{opacity:1}
+.ov-accept-btn{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green)}
+.ov-accept-btn:hover{background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);box-shadow:0 0 24px var(--green-glow);transform:translateY(-2px)}
+.ov-hold-btn{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.25);color:var(--amber)}
+.ov-hold-btn:hover{background:rgba(251,191,36,0.18);border-color:rgba(251,191,36,0.45);box-shadow:0 0 24px var(--amber-glow);transform:translateY(-2px)}
+.ov-reject-btn{background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.25);color:var(--red)}
+.ov-reject-btn:hover{background:rgba(248,113,113,0.18);border-color:rgba(248,113,113,0.45);box-shadow:0 0 24px var(--red-glow);transform:translateY(-2px)}
+.btn-icon-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+.ov-accept-btn .btn-icon-circle{background:rgba(74,222,128,0.2)}
+.ov-hold-btn .btn-icon-circle{background:rgba(251,191,36,0.2)}
+.ov-reject-btn .btn-icon-circle{background:rgba(248,113,113,0.2)}
+
+/* Audit Timeline */
+.audit-card{padding:24px;margin-bottom:24px;opacity:0;animation:fadeUp 0.5s ease 1.8s forwards}
+.audit-timeline{display:flex;flex-direction:column;gap:0}
+.audit-entry{display:flex;gap:16px;padding:12px 0;position:relative}
+.audit-entry:not(:last-child)::after{content:'';position:absolute;left:9px;top:28px;bottom:-12px;width:1px;background:var(--glass-border)}
+.audit-dot-wrap{display:flex;align-items:flex-start;padding-top:4px}
+.audit-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.audit-dot.done{background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.5);box-shadow:0 0 10px rgba(74,222,128,0.3);color:var(--green)}
+.audit-dot.active{background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.5);box-shadow:0 0 10px rgba(96,165,250,0.3);color:var(--blue);animation:pulseDot 1.5s infinite}
+.audit-dot.pending{background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);color:var(--text4)}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 10px rgba(96,165,250,0.3)}50%{box-shadow:0 0 20px rgba(96,165,250,0.6)}}
+.audit-info{flex:1}
+.audit-action{font-size:13px;color:var(--text);font-weight:500}
+.audit-actor{font-size:11px;color:var(--text3);margin-top:2px}
+.audit-time{font-size:10px;color:var(--text4);margin-top:2px}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;opacity:0;animation:fadeUp 0.5s ease 0.9s forwards}
+.stat-item{padding:14px;border-radius:14px;text-align:center}
+.stat-val{font-size:20px;font-weight:800;margin-bottom:2px}
+.stat-val.green{color:var(--green)}
+.stat-val.blue{color:var(--blue)}
+.stat-val.purple{color:var(--purple)}
+.stat-val.gold{color:var(--gold)}
+.stat-label{font-size:11px;color:var(--text3)}
+
+/* Glow divider */
+.glow-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(74,222,128,0.3),transparent);margin:4px 0 20px}
+
+/* Candidate chip */
+.cand-chip{display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:12px 16px;margin-bottom:20px;backdrop-filter:blur(10px);opacity:0;animation:fadeUp 0.5s ease 0.75s forwards}
+.cand-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 20px rgba(96,165,250,0.3)}
+.cand-info .cand-name{font-size:16px;font-weight:700}
+.cand-info .cand-role{font-size:12px;color:var(--text3);margin-top:2px}
+.cand-spacer{flex:1}
+.cand-meta{text-align:right;font-size:11px;color:var(--text4)}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;right:30px;background:rgba(15,12,41,0.9);border:1px solid var(--glass-border);border-radius:14px;padding:14px 20px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:100;backdrop-filter:blur(20px);opacity:0;transform:translateY(20px);transition:all 0.3s;display:flex;align-items:center;gap:10px;min-width:280px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-icon{font-size:20px}
+.toast-text-title{font-weight:600}
+.toast-text-sub{font-size:11px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Top Nav -->
+  <div class="topnav">
+    <div class="nav-logo"><span class="tx">TX</span><span class="screen">Screen</span></div>
+    <div class="nav-badge">TXScreen AI — Premium Review Experience | Audience: Enterprise Demo</div>
+    <div class="nav-spacer"></div>
+    <div class="model-badge">✦ txscreen-v2.1.0</div>
+    <div class="nav-user"><div class="nav-av">SK</div><div class="nav-username">Sarah Kim</div></div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">✦ Screening Complete</div>
+    <div class="hero-title"><span class="name-gradient">Jane Martinez</span></div>
+    <div class="hero-role">Candidate for <span>Senior Python Developer</span></div>
+  </div>
+
+  <!-- Candidate Chip -->
+  <div class="cand-chip">
+    <div class="cand-avatar">JM</div>
+    <div class="cand-info">
+      <div class="cand-name">Jane Martinez</div>
+      <div class="cand-role">Lead Python Developer · CloudScale Inc. · B.Sc. CS, UT Austin 2017</div>
+    </div>
+    <div class="cand-spacer"></div>
+    <div class="cand-meta">
+      <div>Application #APP-2026-04821</div>
+      <div style="margin-top:3px">Applied Sep 2, 2026</div>
+    </div>
+  </div>
+
+  <!-- Decision Card -->
+  <div class="glass-card decision-card">
+    <div class="dec-label">AI Screening Decision</div>
+    <div class="dec-value">ACCEPT</div>
+    <div class="glow-divider"></div>
+    <div class="dec-glow-ring">
+      <svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#4ade80" stroke-width="12" stroke-linecap="round" class="ring-animated" filter="url(#glow)"/>
+        <defs>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct">92%</div>
+        <div class="ring-pct-label">CONFIDENCE</div>
+        <div class="ring-pct-range">±4% uncertainty</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item glass-card"><div class="stat-val green">6/6</div><div class="stat-label">Requirements Met</div></div>
+    <div class="stat-item glass-card"><div class="stat-val blue">88–96%</div><div class="stat-label">Confidence Range</div></div>
+    <div class="stat-item glass-card"><div class="stat-val purple">0</div><div class="stat-label">Flags Detected</div></div>
+    <div class="stat-item glass-card"><div class="stat-val gold">1.2s</div><div class="stat-label">Screen Time</div></div>
+  </div>
+
+  <!-- Evidence Cards -->
+  <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+    Evidence Record
+    <div style="flex:1;height:1px;background:var(--glass-border)"></div>
+    <span style="color:var(--green)">6 / 6 Matched ✓</span>
+  </div>
+  <div class="evidence-grid">
+    <div class="ev-card glass-card">
+      <div class="ev-num-label"><div class="ev-dot"></div>01 · 5+ Years Python</div>
+      <div class="ev-quote">"Lead Python Developer at CloudScale Inc. (2019–2024)"</div>
+      <div class="ev-req-badge">5 yrs direct leadership ✓</div>
+    </div>
+    <div class="ev-card glass-card">
+      <div class="ev-num-label"><div class="ev-dot"></div>02 · Django / Flask</div>
+      <div class="ev-quote">"Architected and maintained 12 Django-based microservices handling 2M+ daily requests"</div>
+      <div class="ev-req-badge">Production-scale Django ✓</div>
+    </div>
+    <div class="ev-card glass-card">
+      <div class="ev-num-label"><div class="ev-dot"></div>03 · REST API Design</div>
+      <div class="ev-quote">"Designed RESTful APIs consumed by mobile and web clients"</div>
+      <div class="ev-req-badge">Multi-platform API design ✓</div>
+    </div>
+    <div class="ev-card glass-card">
+      <div class="ev-num-label"><div class="ev-dot"></div>04 · PostgreSQL</div>
+      <div class="ev-quote">"Managed PostgreSQL databases with complex query optimization"</div>
+      <div class="ev-req-badge">Advanced DB proficiency ✓</div>
+    </div>
+    <div class="ev-card glass-card">
+      <div class="ev-num-label"><div class="ev-dot"></div>05 · pytest Unit Testing</div>
+      <div class="ev-quote">"pytest achieving 94% code coverage"</div>
+      <div class="ev-req-badge">94% coverage — strong ✓</div>
+    </div>
+    <div class="ev-card glass-card">
+      <div class="ev-num-label"><div class="ev-dot"></div>06 · CI/CD Pipelines</div>
+      <div class="ev-quote">"CI/CD pipelines with GitHub Actions and Jenkins"</div>
+      <div class="ev-req-badge">Dual CI/CD tools ✓</div>
+    </div>
+  </div>
+
+  <!-- Reason Card -->
+  <div class="glass-card reason-card">
+    <div class="reason-label">AI Reasoning</div>
+    <div class="reason-text">Jane Martinez demonstrates explicit, verbatim evidence for all six stated requirements. Her 5-year Python leadership tenure, production-scale Django microservice architecture serving 2M+ daily requests, REST API design for multi-platform clients, advanced PostgreSQL expertise, measurable pytest coverage of 94%, and dual CI/CD proficiency with GitHub Actions and Jenkins collectively form a compelling and complete match. No flags, hallucination risks, or injection attempts were detected. This is a high-confidence recommendation to accept.</div>
+  </div>
+
+  <!-- Override Section -->
+  <div class="override-section">
+    <div class="override-label">Recruiter Decision Override</div>
+    <div class="override-btns">
+      <button class="ov-premium-btn ov-accept-btn" onclick="premiumAct('accept')">
+        <div class="btn-icon-circle">✓</div>
+        <span>Accept</span>
+      </button>
+      <button class="ov-premium-btn ov-hold-btn" onclick="premiumAct('hold')">
+        <div class="btn-icon-circle">⏸</div>
+        <span>Hold</span>
+      </button>
+      <button class="ov-premium-btn ov-reject-btn" onclick="premiumAct('reject')">
+        <div class="btn-icon-circle">✕</div>
+        <span>Reject</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Audit Timeline -->
+  <div class="glass-card audit-card">
+    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      Audit Trail
+      <div style="flex:1;height:1px;background:var(--glass-border)"></div>
+    </div>
+    <div class="audit-timeline">
+      <div class="audit-entry">
+        <div class="audit-dot-wrap"><div class="audit-dot done">✓</div></div>
+        <div class="audit-info">
+          <div class="audit-action">AI screening completed → ACCEPT [92%]</div>
+          <div class="audit-actor">txscreen-v2.1.0 · resume-screening-v3 · Flags: None</div>
+          <div class="audit-time">2026-09-03 · 09:14:02 UTC · 1,214ms</div>
+        </div>
+      </div>
+      <div class="audit-entry">
+        <div class="audit-dot-wrap"><div class="audit-dot done">✓</div></div>
+        <div class="audit-info">
+          <div class="audit-action">Result queued to recruiter dashboard</div>
+          <div class="audit-actor">System (automated)</div>
+          <div class="audit-time">2026-09-03 · 09:15:11 UTC</div>
+        </div>
+      </div>
+      <div class="audit-entry">
+        <div class="audit-dot-wrap"><div class="audit-dot active">●</div></div>
+        <div class="audit-info">
+          <div class="audit-action">Recruiter review in progress</div>
+          <div class="audit-actor">Sarah Kim · Lead Recruiter</div>
+          <div class="audit-time">Now · Active session</div>
+        </div>
+      </div>
+      <div class="audit-entry">
+        <div class="audit-dot-wrap"><div class="audit-dot pending">○</div></div>
+        <div class="audit-info">
+          <div class="audit-action" style="color:var(--text3)">Hiring manager final sign-off</div>
+          <div class="audit-actor" style="color:var(--text4)">Pending recruiter decision</div>
+          <div class="audit-time">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer spacer -->
+  <div style="height:40px"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="tIcon">✅</div>
+  <div>
+    <div class="toast-text-title" id="tTitle">Decision recorded</div>
+    <div class="toast-text-sub" id="tSub">Audit log updated.</div>
+  </div>
+</div>
+
+<script>
+function premiumAct(d){
+  const map={
+    accept:{icon:'✅',title:'Accept Confirmed',sub:'Jane Martinez advanced to phone screen. Audit log updated.'},
+    hold:{icon:'⏸',title:'Moved to Hold',sub:'Candidate placed on hold. Reason will be logged.'},
+    reject:{icon:'❌',title:'Override: Reject',sub:'Candidate rejected. Override recorded in audit trail.'}
+  };
+  const m=map[d];
+  document.getElementById('tIcon').textContent=m.icon;
+  document.getElementById('tTitle').textContent=m.title;
+  document.getElementById('tSub').textContent=m.sub;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AssessAI — AI Technical Assessment Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;--bg2:#0f172a;--bg3:#1e293b;--border:#1e293b;--border2:#334155;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--text4:#334155;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#4ade80;--purple:#a78bfa;--amber:#fbbf24;--red:#f87171;
+  --grad:linear-gradient(135deg,#0a0f1e 0%,#0f172a 50%,#0a0f1e 100%);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* Nav */
+.nav{background:rgba(10,15,30,0.95);border-bottom:1px solid var(--border2);padding:0 40px;height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.nav-logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--blue);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600}
+.nav-spacer{flex:1}
+.nav-links{display:flex;gap:4px}
+.nav-link{padding:6px 14px;border-radius:8px;font-size:13px;color:var(--text2);cursor:pointer;text-decoration:none;transition:all 0.2s}
+.nav-link:hover,.nav-link.active{background:var(--bg3);color:var(--text)}
+.nav-cta{background:var(--blue2);color:white;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s}
+.nav-cta:hover{background:var(--blue);box-shadow:0 4px 16px rgba(59,130,246,0.4)}
+
+/* Hero */
+.hero{padding:80px 40px;text-align:center;max-width:900px;margin:0 auto}
+.hero-eyebrow{font-size:12px;font-weight:600;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.hero-title{font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-2px;margin-bottom:16px}
+.hero-title .grad{background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 50%,var(--green) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:var(--text2);line-height:1.7;max-width:640px;margin:0 auto 32px}
+.hero-flow{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:48px;flex-wrap:wrap}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 16px}
+.flow-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid}
+.flow-icon.s1{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3)}
+.flow-icon.s2{background:rgba(167,139,250,0.15);border-color:rgba(167,139,250,0.3)}
+.flow-icon.s3{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3)}
+.flow-icon.s4{background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.3)}
+.flow-label{font-size:11px;color:var(--text3);font-weight:600;text-align:center;max-width:80px;line-height:1.3}
+.flow-arrow{color:var(--text4);font-size:20px;padding:0 4px}
+
+/* Demo Cards */
+.demos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:1000px;margin:0 auto;padding:0 40px 80px}
+.demo-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;transition:all 0.25s;cursor:pointer;text-decoration:none;display:block}
+.demo-card:hover{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 12px 40px rgba(59,130,246,0.15);transform:translateY(-3px)}
+.demo-card-top{height:8px}
+.dc1 .demo-card-top{background:linear-gradient(90deg,var(--blue2),var(--blue),#6366f1)}
+.dc2 .demo-card-top{background:linear-gradient(90deg,var(--purple),#8b5cf6,var(--blue))}
+.dc3 .demo-card-top{background:linear-gradient(90deg,var(--green),#10b981,var(--blue))}
+.dc4 .demo-card-top{background:linear-gradient(90deg,var(--amber),#f59e0b,var(--red))}
+.demo-card-body{padding:24px}
+.dc-num{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.dc-icon{font-size:32px;margin-bottom:12px;display:block}
+.dc-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
+.dc-role{font-size:12px;color:var(--text3);margin-bottom:10px}
+.dc-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px}
+.dc-features{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.dc-feat{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--text2)}
+.dc-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;text-decoration:none}
+.dc1 .dc-btn{background:linear-gradient(135deg,var(--blue2),#6366f1);color:white}
+.dc2 .dc-btn{background:linear-gradient(135deg,#7c3aed,var(--purple));color:white}
+.dc3 .dc-btn{background:linear-gradient(135deg,#16a34a,var(--green));color:white}
+.dc4 .dc-btn{background:linear-gradient(135deg,#d97706,var(--amber));color:white}
+.dc-btn:hover{opacity:0.9;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+
+/* Stats */
+.stats{display:flex;justify-content:center;gap:40px;padding:40px;background:var(--bg2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);margin-bottom:48px}
+.stat{text-align:center}
+.stat-val{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:12px;color:var(--text3);margin-top:4px}
+
+/* How it works */
+.how-it-works{max-width:900px;margin:0 auto;padding:0 40px 60px}
+.section-title{font-size:24px;font-weight:700;text-align:center;margin-bottom:8px}
+.section-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:36px}
+.steps{display:flex;flex-direction:column;gap:16px}
+.step-row{display:flex;gap:16px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:18px 20px}
+.step-num{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue2),var(--blue));color:white;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-info .step-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.step-info .step-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.ai-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:var(--purple);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;margin-left:6px}
+
+/* Footer */
+footer{text-align:center;padding:24px;border-top:1px solid var(--border2);color:var(--text3);font-size:12px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">AssessAI</div>
+  <div class="nav-badge">Powered by assessai-v1.0</div>
+  <div class="nav-spacer"></div>
+  <div class="nav-links">
+    <a class="nav-link active" href="index.html">Home</a>
+    <a class="nav-link" href="01_generator.html">Generator</a>
+    <a class="nav-link" href="signin.html?next=01_generator.html">Sign in</a>
+    <a class="nav-link" href="progress_dashboard.html">Admin</a>
+    <a class="nav-link" href="04_report.html">Report</a>
+  </div>
+  <a class="nav-cta" href="signin.html?next=01_generator.html">Sign in →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">✦ AI-Powered Hiring Tool</div>
+  <h1 class="hero-title">Generate. Assess. Evaluate.<br><span class="grad">All with AI.</span></h1>
+  <p class="hero-sub">AssessAI builds tailored technical assessments for any role in seconds, evaluates candidate answers with AI reasoning, and delivers a hiring-ready report.</p>
+  <div class="hero-flow">
+    <div class="flow-step">
+      <div class="flow-icon s1">🎯</div>
+      <div class="flow-label">Define Role & Stack</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-icon s2">⚡</div>
+      <div class="flow-label">AI Generates Assessment</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-icon s3">✍️</div>
+      <div class="flow-label">Candidate Takes It</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-icon s4">📊</div>
+      <div class="flow-label">AI Evaluates & Reports</div>
+    </div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val">4</div><div class="stat-label">Live Demos</div></div>
+  <div class="stat"><div class="stat-val">9</div><div class="stat-label">Questions Generated</div></div>
+  <div class="stat"><div class="stat-val">78/100</div><div class="stat-label">Sample AI Score</div></div>
+  <div class="stat"><div class="stat-val">AI</div><div class="stat-label">assessai-v1.0</div></div>
+</div>
+
+<div class="demos-grid">
+
+  <div class="demo-card dc1">
+    <div class="demo-card-top"></div>
+    <div class="demo-card-body">
+      <div class="dc-num">Demo 01 · HR / Hiring Manager</div>
+      <span class="dc-icon">⚡</span>
+      <div class="dc-title">Assessment Generator</div>
+      <div class="dc-role">AI Prompt Builder + Question Generator</div>
+      <div class="dc-desc">Enter a job title and tech stack. Watch AI build a complete technical assessment — MCQs, coding challenges, system design, and behavioral questions — in real time with a streaming effect.</div>
+      <div class="dc-features">
+        <span class="dc-feat">AI Streaming</span><span class="dc-feat">Prompt Builder</span><span class="dc-feat">9 Questions</span><span class="dc-feat">Difficulty Levels</span>
+      </div>
+      <a class="dc-btn" href="01_generator.html">Open Demo 01 →</a>
+    </div>
+  </div>
+
+  <div class="demo-card dc2">
+    <div class="demo-card-top"></div>
+    <div class="demo-card-body">
+      <div class="dc-num">Demo 02 · Candidate</div>
+      <span class="dc-icon">✍️</span>
+      <div class="dc-title">Candidate Assessment Portal</div>
+      <div class="dc-role">Timed Assessment UX</div>
+      <div class="dc-desc">The candidate-facing assessment screen. Live countdown timer, question navigator, simulated code editor, MCQ radio buttons, and a submit flow with AI scoring animation.</div>
+      <div class="dc-features">
+        <span class="dc-feat">Live Timer</span><span class="dc-feat">Code Editor</span><span class="dc-feat">Progress Nav</span><span class="dc-feat">Auto-Save</span>
+      </div>
+      <a class="dc-btn" href="02_candidate.html">Open Demo 02 →</a>
+    </div>
+  </div>
+
+  <div class="demo-card dc3">
+    <div class="demo-card-top"></div>
+    <div class="demo-card-body">
+      <div class="dc-num">Demo 03 · Recruiter / Evaluator</div>
+      <span class="dc-icon">🧠</span>
+      <div class="dc-title">AI Evaluation Dashboard</div>
+      <div class="dc-role">Per-Question AI Scoring + Reasoning</div>
+      <div class="dc-desc">Recruiter-facing dashboard showing AI-scored results. Every answer gets a 0–10 score with a full AI reasoning paragraph, skill radar chart, and suggested follow-up interview questions.</div>
+      <div class="dc-features">
+        <span class="dc-feat">AI Reasoning</span><span class="dc-feat">Score Override</span><span class="dc-feat">Radar Chart</span><span class="dc-feat">Follow-up Qs</span>
+      </div>
+      <a class="dc-btn" href="03_evaluator.html">Open Demo 03 →</a>
+    </div>
+  </div>
+
+  <div class="demo-card dc4">
+    <div class="demo-card-top"></div>
+    <div class="demo-card-body">
+      <div class="dc-num">Demo 04 · Hiring Committee</div>
+      <span class="dc-icon">📋</span>
+      <div class="dc-title">Assessment Report</div>
+      <div class="dc-role">AI-Generated Hiring Report</div>
+      <div class="dc-desc">A complete, print-ready hiring assessment report. AI-written executive summary, score table, identified strengths and gaps, a final Hire / No Hire recommendation, and a full audit trail.</div>
+      <div class="dc-features">
+        <span class="dc-feat">AI Summary</span><span class="dc-feat">Hire Rec.</span><span class="dc-feat">Print-Ready</span><span class="dc-feat">Audit Trail</span>
+      </div>
+      <a class="dc-btn" href="04_report.html">Open Demo 04 →</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="how-it-works">
+  <div class="section-title">How AssessAI Works</div>
+  <div class="section-sub">Four steps, each powered by AI</div>
+  <div class="steps">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-info">
+        <div class="step-title">You define the role and requirements <span class="ai-pill">🤖 AI Prompt</span></div>
+        <div class="step-desc">HR enters the job title, required tech stack, experience level, and number of questions. AssessAI constructs a structured prompt and sends it to the AI model to generate a tailored assessment. The prompt is visible so you can understand what the AI is doing.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-info">
+        <div class="step-title">AI generates a full assessment in seconds <span class="ai-pill">🤖 AI Output</span></div>
+        <div class="step-desc">The model returns structured questions: multiple-choice conceptual questions with 4 options, coding challenges with problem statements and test cases, a system design question, and a behavioral question. Each question includes difficulty rating and expected time.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-info">
+        <div class="step-title">Candidate takes the assessment in a clean portal</div>
+        <div class="step-desc">The candidate receives a timed link. The portal provides a live countdown timer, a question navigator for easy jumping between questions, appropriate input types (code editor for coding questions, radio for MCQ), and auto-save on every change.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-info">
+        <div class="step-title">AI evaluates every answer with reasoning <span class="ai-pill">🤖 AI Scoring</span></div>
+        <div class="step-desc">After submission, the AI evaluates each answer independently: assigns a 0–10 score, explains exactly why with evidence from the candidate's answer, flags knowledge gaps, suggests interview follow-ups, and generates a final hire recommendation with confidence score.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  AssessAI · AI Technical Assessment Generator · assessai-v1.0 · Built to demonstrate AI-powered hiring tooling
+</footer>
+
+</body>
+</html>

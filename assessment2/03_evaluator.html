@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AssessAI 2.0 — AI Evaluation Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#6d28d9;--brand2:#7c3aed;--brand-light:#ede9fe;--brand-border:#c4b5fd;
+  --bg:#f4f4f5;--white:#fff;--border:#e4e4e7;--border2:#d4d4d8;
+  --text:#09090b;--text2:#3f3f46;--text3:#71717a;--text4:#a1a1aa;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;min-height:100vh}
+
+/* Nav */
+.nav{background:rgba(250,250,250,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50}
+.nl{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nl-i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:800}
+.nl-t{font-size:15px;font-weight:800;color:var(--text)}
+.nl-v{font-size:10px;font-weight:600;color:var(--brand);background:var(--brand-light);border-radius:4px;padding:1px 5px}
+.nsep{color:var(--text4);font-size:16px}
+.npg{font-size:13px;font-weight:600;color:var(--text2)}
+.nsp{flex:1}
+.nsteps{display:flex;gap:3px}
+.nst{padding:5px 12px;border-radius:7px;font-size:12px;font-weight:500;color:var(--text3);text-decoration:none;transition:all 0.15s}
+.nst.active{background:var(--brand-light);color:var(--brand);font-weight:700}
+.nst:hover:not(.active){background:var(--border);color:var(--text2)}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:1fr 280px;max-width:1200px;margin:0 auto;padding:24px;gap:20px;align-items:start}
+
+/* Candidate header */
+.cand-header{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.ch-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:800;flex-shrink:0}
+.ch-info{flex:1}
+.ch-name{font-size:17px;font-weight:800;letter-spacing:-0.3px}
+.ch-role{font-size:12px;color:var(--text3);margin-top:2px}
+.ch-meta{display:flex;gap:16px;margin-top:8px}
+.ch-meta-item{font-size:11px;color:var(--text4);display:flex;align-items:center;gap:4px}
+.ch-score{text-align:center;flex-shrink:0}
+.ch-score-val{font-size:28px;font-weight:800;color:var(--amber);letter-spacing:-1px}
+.ch-score-label{font-size:10px;color:var(--text4);margin-top:1px}
+
+/* Q eval cards */
+.eval-section h2{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.eval-card{background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:box-shadow 0.15s}
+.eval-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.ec-hd{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.12s}
+.ec-hd:hover{background:var(--bg)}
+.ecn{width:26px;height:26px;border-radius:7px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ecn-mcq{background:var(--blue-bg);color:var(--blue)}
+.ecn-code{background:var(--green-bg);color:var(--green)}
+.ecn-design{background:var(--purple-bg);color:var(--purple)}
+.ecn-beh{background:var(--amber-bg);color:var(--amber)}
+.ect{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.4px}
+.ect-mcq{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.ect-code{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.ect-design{background:var(--purple-bg);color:var(--purple);border:1px solid var(--brand-border)}
+.ect-beh{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.ecq{font-size:13px;color:var(--text2);flex:1;line-height:1.3}
+.ecs{font-size:12px;font-weight:700;padding:3px 11px;border-radius:100px;flex-shrink:0}
+.ecs-hi{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.ecs-md{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.ecs-lo{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.ec-chevron{color:var(--text4);font-size:13px;transition:transform 0.2s;flex-shrink:0}
+.ec-chevron.open{transform:rotate(180deg)}
+.ec-body{padding:16px;border-top:1px solid var(--border);display:none;animation:fadeIn 0.2s ease}
+.ec-body.open{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Answer block */
+.ans-lbl{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px}
+.ans-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+.ans-box.code{font-family:var(--mono);font-size:11.5px;background:#09090b;border-color:#1e293b;color:#7dd3fc;white-space:pre}
+
+/* AI evaluation */
+.ai-block{background:linear-gradient(135deg,#faf5ff,#eff6ff);border:1px solid var(--brand-border);border-radius:10px;padding:14px}
+.ai-block-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ai-badge{background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:0.4px}
+.ai-score-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.ai-score-num{font-size:24px;font-weight:800;letter-spacing:-1px}
+.ai-bar-wrap{flex:1;height:7px;background:rgba(0,0,0,.06);border-radius:4px;overflow:hidden}
+.ai-bar{height:100%;border-radius:4px}
+.ab-hi{background:linear-gradient(90deg,var(--green),#22c55e)}
+.ab-md{background:linear-gradient(90deg,var(--amber),#f59e0b)}
+.ab-lo{background:linear-gradient(90deg,var(--red),#f87171)}
+.ai-reason{font-size:12.5px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.ai-followup{background:rgba(37,99,235,0.07);border-left:2px solid var(--blue);border-radius:0 6px 6px 0;padding:8px 12px;font-size:11.5px;color:var(--text2);font-style:italic}
+.ai-followup strong{display:block;font-style:normal;font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+
+/* Override row */
+.override-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.or-lbl{font-size:11px;color:var(--text3);font-weight:600}
+.or-input{width:56px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-family:inherit;font-size:12px;text-align:center;outline:none}
+.or-input:focus{border-color:var(--brand)}
+.or-note{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 9px;font-family:inherit;font-size:11px;outline:none}
+.or-note:focus{border-color:var(--brand)}
+.or-save{background:var(--brand);color:white;border:none;border-radius:6px;padding:5px 13px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:background 0.12s}
+.or-save:hover{background:var(--brand2)}
+
+/* Right sidebar */
+.rsidebar{display:flex;flex-direction:column;gap:16px;position:sticky;top:76px}
+.rs-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px}
+.rs-title{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
+
+/* Score ring */
+.ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 12px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rc-val{font-size:26px;font-weight:800;color:var(--amber);letter-spacing:-1px}
+.rc-label{font-size:10px;color:var(--text4)}
+.score-ring-anim{stroke-dasharray:314;stroke-dashoffset:314;animation:ring 1.3s ease 0.4s forwards}
+@keyframes ring{to{stroke-dashoffset:69}}
+
+/* Skill bars */
+.skill-row{margin-bottom:9px}
+.skill-row-top{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.skill-name{color:var(--text2);font-weight:500}
+.skill-val{font-weight:700}
+.skill-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.skill-fill{height:100%;border-radius:3px;transition:width 1.2s ease}
+.sf-react{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.sf-ts{background:linear-gradient(90deg,var(--purple),#a78bfa)}
+.sf-sys{background:linear-gradient(90deg,var(--green),#4ade80)}
+.sf-async{background:linear-gradient(90deg,var(--amber),#fbbf24)}
+.sf-best{background:linear-gradient(90deg,var(--red),#f87171)}
+
+/* Breakdown */
+.breakdown-row{display:flex;justify-content:space-between;font-size:12px;padding:7px 0;border-bottom:1px solid var(--border)}
+.breakdown-row:last-child{border:none;padding-top:10px;margin-top:4px;font-weight:700;font-size:13px}
+.br-label{color:var(--text2)}
+.br-val{font-weight:600}
+
+/* Rec card */
+.rec-card{background:linear-gradient(135deg,var(--amber-bg),#fff7ed);border:1px solid var(--amber-border);border-radius:10px;padding:14px;text-align:center}
+.rec-title{font-size:13px;font-weight:800;color:var(--amber)}
+.rec-pct{font-size:22px;font-weight:800;color:var(--amber);margin:4px 0}
+.rec-sub{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* Report CTA */
+.report-cta{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:11px;background:linear-gradient(135deg,var(--amber),#f59e0b);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.15s}
+.report-cta:hover{box-shadow:0 4px 16px rgba(217,119,6,0.4);transform:translateY(-1px)}
+
+/* Toast */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--text);color:white;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(10px);transition:all 0.25s}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nl" href="index.html"><div class="nl-i">A</div><div class="nl-t">AssessAI</div><div class="nl-v">2.0</div></a>
+  <span class="nsep">›</span><span class="npg">AI Evaluation Dashboard</span>
+  <div class="nsp"></div>
+  <div class="nsteps">
+    <a class="nst" href="01_generator.html">1 · Generate</a>
+    <a class="nst" href="02_candidate.html">2 · Take</a>
+    <a class="nst active" href="03_evaluator.html">3 · Evaluate</a>
+    <a class="nst" href="04_report.html">4 · Report</a>
+  </div>
+</nav>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px">
+
+  <!-- Candidate header -->
+  <div class="cand-header">
+    <div class="ch-avatar">AJ</div>
+    <div class="ch-info">
+      <div class="ch-name">Alex Johnson</div>
+      <div class="ch-role">Senior React Developer · #ASS-2026-0047 · assessai-v2.0</div>
+      <div class="ch-meta">
+        <div class="ch-meta-item">📅 Submitted Sep 3, 2026 · 10:42 AM</div>
+        <div class="ch-meta-item">⏱ Time taken: 38m 24s</div>
+        <div class="ch-meta-item">✅ 9 / 9 answered</div>
+        <div class="ch-meta-item">🤖 AI evaluation complete</div>
+      </div>
+    </div>
+    <div class="ch-score">
+      <div class="ch-score-val">78<span style="font-size:16px;color:var(--text4)">/100</span></div>
+      <div class="ch-score-label">AI Overall Score</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Left: evaluations -->
+    <div>
+      <div class="eval-section">
+        <h2>🧠 Per-Question AI Evaluation <span style="font-size:11px;color:var(--text4);font-weight:500">9 questions · Click to expand</span></h2>
+
+        <!-- Q1 -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-mcq">1</div><span class="ect ect-mcq">MCQ</span>
+            <div class="ecq">Which hook runs a side effect only when a specific value changes?</div>
+            <span class="ecs ecs-hi">10/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body open">
+            <div class="ans-lbl">Candidate Answer</div>
+            <div class="ans-box">✓ useEffect with dependency array</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--green)">10/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-hi" style="width:100%"></div></div></div>
+              <div class="ai-reason">Correct. <strong>useEffect with a dependency array</strong> is the precise answer. The candidate demonstrated clear understanding of React's hook lifecycle — the effect only re-runs when the listed dependency changes.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>What happens when an unstable object reference is included in a useEffect dependency array? How would you debug and fix it?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="10" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q1')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-mcq">2</div><span class="ect ect-mcq">MCQ</span>
+            <div class="ecq">Difference between useMemo and useCallback?</div>
+            <span class="ecs ecs-hi">10/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate Answer</div>
+            <div class="ans-box">✓ useMemo memoizes a value; useCallback memoizes a function reference</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--green)">10/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-hi" style="width:100%"></div></div></div>
+              <div class="ai-reason">Correct. Precise semantic distinction identified. useMemo returns a memoized <em>value</em>; useCallback returns a memoized <em>function</em>. Critical for avoiding unnecessary re-renders in child components.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>Give an example where using useCallback would cause a performance regression rather than an improvement.</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="10" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q2')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-mcq">3</div><span class="ect ect-mcq">MCQ</span>
+            <div class="ecq">TypeScript: interface vs type?</div>
+            <span class="ecs ecs-hi">9/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate Answer</div>
+            <div class="ans-box">✓ interface supports declaration merging; type supports unions, intersections, and complex expressions</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--green)">9/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-hi" style="width:90%"></div></div></div>
+              <div class="ai-reason">Correct core distinction. Minor deduction: did not mention that both can extend each other, or that interfaces are generally preferred for public API contracts.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>When would you use a discriminated union type instead of an interface hierarchy?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="9" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q3')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-mcq">4</div><span class="ect ect-mcq">MCQ</span>
+            <div class="ecq">Efficient pagination caching in React?</div>
+            <span class="ecs ecs-hi">10/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate Answer</div>
+            <div class="ans-box">✓ Use React Query or SWR with a distinct cache key per page</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--green)">10/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-hi" style="width:100%"></div></div></div>
+              <div class="ai-reason">Correct. Industry-standard answer. Shows knowledge of modern React data-fetching patterns beyond basic useEffect — cache key per page ensures independent caching and background revalidation.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>How would you implement infinite scroll using React Query's useInfiniteQuery?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="10" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q4')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-mcq">5</div><span class="ect ect-mcq">MCQ</span>
+            <div class="ecq">React.memo — when NOT to use it?</div>
+            <span class="ecs ecs-hi">9/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate Answer</div>
+            <div class="ans-box">✓ Prevents re-renders if props reference-equal; avoid when props change frequently or comparison expensive</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--green)">9/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-hi" style="width:90%"></div></div></div>
+              <div class="ai-reason">Correct and well-articulated. Minor: did not mention React.memo's optional custom comparison function as a second argument for fine-grained control.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>Write a custom comparison function for React.memo that only re-renders when a user's id changes.</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="9" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q5')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q6 Code -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-code">6</div><span class="ect ect-code">Coding</span>
+            <div class="ecq">Implement useDebounce(value, delay) hook</div>
+            <span class="ecs ecs-md">7/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate's Code</div>
+            <div class="ans-box code">function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--amber)">7/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-md" style="width:70%"></div></div></div>
+              <div class="ai-reason">Core logic is <strong>correct</strong>: setTimeout + cleanup clearTimeout properly prevents stale updates. Deductions: (1) Missing TypeScript generic <code style="background:rgba(0,0,0,0.06);padding:1px 4px;border-radius:3px;font-size:11px">function useDebounce&lt;T&gt;(value: T, delay: number): T</code>; (2) No edge case for delay=0; (3) Missing JSDoc.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>How would you modify useDebounce to also expose a cancel() function to clear the pending timer manually?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="7" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q6')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q7 Code -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-code">7</div><span class="ect ect-code">Coding</span>
+            <div class="ecq">Implement fetchWithRetry&lt;T&gt; with exponential backoff</div>
+            <span class="ecs ecs-md">6/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate's Code</div>
+            <div class="ans-box code">async function fetchWithRetry(url, options, retries=3, backoff=500) {
+  let attempt = 0;
+  while (attempt <= retries) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return await res.json();
+      attempt++;
+    } catch(e) {
+      if (attempt === retries) throw e;
+      await new Promise(r => setTimeout(r, backoff));
+      attempt++;
+    }
+  }
+}</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--amber)">6/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-md" style="width:60%"></div></div></div>
+              <div class="ai-reason">Basic retry loop is correct. Significant gaps: (1) <strong>No exponential backoff</strong> — fixed delay instead of <code style="background:rgba(0,0,0,0.06);padding:1px 4px;border-radius:3px;font-size:11px">backoff * 2^attempt</code>; (2) Missing TypeScript generic &lt;T&gt;; (3) Not retrying on 5xx HTTP responses (only catches network errors); (4) No jitter for thundering herd prevention.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>What is "thundering herd" in retry logic? How would you add jitter to mitigate it?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="6" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q7')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q8 Design -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-design">8</div><span class="ect ect-design">Design</span>
+            <div class="ecq">Real-time collaborative document editor architecture</div>
+            <span class="ecs ecs-md">7/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate's Answer</div>
+            <div class="ans-box">WebSockets for real-time sync, Node.js backend. Last-write-wins for conflicts. localStorage for offline. Split doc into sections for performance.</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--amber)">7/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-md" style="width:70%"></div></div></div>
+              <div class="ai-reason">Good foundation — WebSocket is correct. Gaps: (1) <strong>Conflict resolution is wrong</strong> — last-write-wins causes data loss; expected OT or CRDTs; (2) No presence awareness; (3) "Split doc into sections" is vague — virtual scrolling (react-virtuoso) is the correct approach; (4) No IndexedDB offline sync queue mentioned.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>What is the difference between OT and CRDTs for conflict resolution? Which would you choose and why?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="7" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q8')">Save</button></div>
+          </div>
+        </div>
+
+        <!-- Q9 Behavioral -->
+        <div class="eval-card">
+          <div class="ec-hd" onclick="tog(this)">
+            <div class="ecn ecn-beh">9</div><span class="ect ect-beh">Behavioral</span>
+            <div class="ecq">Performance issue discovered in production React app</div>
+            <span class="ecs ecs-hi">10/10</span><span class="ec-chevron">▾</span>
+          </div>
+          <div class="ec-body">
+            <div class="ans-lbl">Candidate's Answer</div>
+            <div class="ans-box">Dashboard re-rendering 400×/min. Used React DevTools Profiler — root cause: config object created inline in JSX. Moved config outside render + useMemo. FCP: 3.8s → 0.9s. Re-renders: 400/min → 2/min. Added performance budget to CI.</div>
+            <div class="ai-block">
+              <div class="ai-block-hd"><span class="ai-badge">🤖 assessai-v2.0</span></div>
+              <div class="ai-score-row"><div class="ai-score-num" style="color:var(--green)">10/10</div><div class="ai-bar-wrap"><div class="ai-bar ab-hi" style="width:100%"></div></div></div>
+              <div class="ai-reason">Excellent STAR answer. All elements: specific profiling tool, precise root cause (inline object reference — a subtle but common React pitfall), concrete fix, measurable result (FCP 3.8s→0.9s), and process improvement (CI performance budget). Demonstrates engineering maturity.</div>
+              <div class="ai-followup"><strong>Suggested Follow-up</strong>How would you implement a performance budget in CI? What metrics and thresholds would trigger a build failure?</div>
+            </div>
+            <div class="override-row"><span class="or-lbl">Override:</span><input type="number" class="or-input" value="10" min="0" max="10"><input type="text" class="or-note" placeholder="Add note (optional)"><button class="or-save" onclick="showToast('✓ Override saved for Q9')">Save</button></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="rsidebar">
+      <div class="rs-card">
+        <div class="rs-title">Overall AI Score</div>
+        <div class="ring-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="50" fill="none" stroke="#fde68a" stroke-width="9"/>
+            <circle cx="55" cy="55" r="50" fill="none" stroke="#d97706" stroke-width="9" stroke-linecap="round" class="score-ring-anim"/>
+          </svg>
+          <div class="ring-center"><div class="rc-val">78</div><div class="rc-label">/100 · AI Score</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text4);text-align:center">Evaluated Sep 3, 2026 · 10:43 UTC</div>
+      </div>
+
+      <div class="rs-card">
+        <div class="rs-title">Skill Areas</div>
+        <div class="skill-row">
+          <div class="skill-row-top"><span class="skill-name">React Hooks</span><span class="skill-val" style="color:var(--blue)">95%</span></div>
+          <div class="skill-track"><div class="skill-fill sf-react" style="width:95%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-row-top"><span class="skill-name">TypeScript</span><span class="skill-val" style="color:var(--purple)">88%</span></div>
+          <div class="skill-track"><div class="skill-fill sf-ts" style="width:88%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-row-top"><span class="skill-name">System Design</span><span class="skill-val" style="color:var(--green)">70%</span></div>
+          <div class="skill-track"><div class="skill-fill sf-sys" style="width:70%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-row-top"><span class="skill-name">Async Patterns</span><span class="skill-val" style="color:var(--amber)">60%</span></div>
+          <div class="skill-track"><div class="skill-fill sf-async" style="width:60%"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-row-top"><span class="skill-name">Best Practices</span><span class="skill-val" style="color:var(--red)">80%</span></div>
+          <div class="skill-track"><div class="skill-fill sf-best" style="width:80%"></div></div>
+        </div>
+      </div>
+
+      <div class="rs-card">
+        <div class="rs-title">Score Breakdown</div>
+        <div class="breakdown-row"><span class="br-label">MCQ (Q1–Q5)</span><span class="br-val" style="color:var(--green)">48/50</span></div>
+        <div class="breakdown-row"><span class="br-label">Coding (Q6–Q7)</span><span class="br-val" style="color:var(--amber)">13/20</span></div>
+        <div class="breakdown-row"><span class="br-label">System Design</span><span class="br-val" style="color:var(--amber)">7/10</span></div>
+        <div class="breakdown-row"><span class="br-label">Behavioral</span><span class="br-val" style="color:var(--green)">10/10</span></div>
+        <div class="breakdown-row"><span class="br-label">Total</span><span class="br-val" style="color:var(--amber);font-size:15px">78/100</span></div>
+      </div>
+
+      <div class="rs-card">
+        <div class="rs-title">Recommendation</div>
+        <div class="rec-card">
+          <div class="rec-title">⏩ ADVANCE TO INTERVIEW</div>
+          <div class="rec-pct">82%</div>
+          <div class="rec-sub">Strong React fundamentals. Recommend 1-hr technical deep-dive on async patterns & system design.</div>
+        </div>
+        <a class="report-cta" href="04_report.html" style="margin-top:14px;display:flex">📋 Full Report →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function tog(hd){
+  const body=hd.nextElementSibling;
+  const chev=hd.querySelector('.ec-chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+document.querySelector('.ec-hd').click();
+</script>
+</body>
+</html>
